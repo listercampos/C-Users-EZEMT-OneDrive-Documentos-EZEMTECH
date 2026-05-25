@@ -27,6 +27,15 @@ http://localhost:4174
 
 Configura correos, WhatsApp, webhooks y seguridad en `config.js`. No pongas API keys de OpenAI, Gemini ni ningun proveedor de IA dentro de la app del navegador.
 
+La app incluye una seccion **Conectar APIs** con enlaces oficiales para crear claves:
+
+- Groq: `https://console.groq.com/keys` para `GROQ_API_KEY`.
+- SerpAPI: `https://serpapi.com/` para `SERP_API_KEY`.
+- Cloudflare: `https://dash.cloudflare.com/` para guardar secretos del Worker.
+- Resend: `https://resend.com/api-keys` para `RESEND_API_KEY` opcional.
+
+Las claves se copian manualmente en Cloudflare Worker como secretos; nunca se pegan en la app.
+
 ```js
 window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
   bookingUrl: "https://www.ezemtech.com/book-online",

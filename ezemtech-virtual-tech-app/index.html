@@ -11,7 +11,7 @@
     />
     <title>EZEMTECH AI Tech</title>
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./styles.css?v=20260525-4" />
+    <link rel="stylesheet" href="./styles.css?v=20260525-5" />
   </head>
   <body>
     <main class="app-shell">
@@ -116,6 +116,39 @@
         </section>
       </section>
 
+      <section class="api-setup" id="apiSetup" aria-label="Conectar APIs">
+        <div class="api-copy">
+          <p class="eyebrow">Conectar APIs</p>
+          <h2>Registra tus claves sin pegarlas aqui</h2>
+          <p>
+            Abre cada servicio, crea la clave y guardala directo en Cloudflare Worker como secreto.
+            La app nunca debe recibir ni mostrar tus API keys.
+          </p>
+        </div>
+        <div class="api-grid">
+          <a class="api-link" href="https://console.groq.com/keys" target="_blank" rel="noopener">
+            <strong>Groq API</strong>
+            <span>Crear clave para IA</span>
+            <code>GROQ_API_KEY</code>
+          </a>
+          <a class="api-link" href="https://serpapi.com/" target="_blank" rel="noopener">
+            <strong>SerpAPI</strong>
+            <span>Crear clave para busqueda web</span>
+            <code>SERP_API_KEY</code>
+          </a>
+          <a class="api-link" href="https://dash.cloudflare.com/" target="_blank" rel="noopener">
+            <strong>Cloudflare</strong>
+            <span>Agregar secretos al Worker</span>
+            <code>Worker Secrets</code>
+          </a>
+          <a class="api-link" href="https://resend.com/api-keys" target="_blank" rel="noopener">
+            <strong>Resend</strong>
+            <span>Correo automatico opcional</span>
+            <code>RESEND_API_KEY</code>
+          </a>
+        </div>
+      </section>
+
       <section class="ticket-area" aria-label="Crear ticket para tecnicos">
         <div class="ticket-copy">
           <p class="eyebrow">Ticket seguro</p>
@@ -166,11 +199,12 @@
       <section class="actions">
         <a class="action-button" href="https://www.ezemtech.com/book-online" target="_blank" rel="noopener">Reservar cita</a>
         <a class="action-button" href="https://www.ezemtech.com/" target="_blank" rel="noopener">EZEMTECH.com</a>
+        <a class="action-button" href="#apiSetup">Conectar APIs</a>
         <button class="action-button" type="button" id="copyTicket">Copiar ticket</button>
       </section>
     </main>
 
-    <script src="./config.js?v=20260525-4"></script>
-    <script src="./app.js?v=20260525-4"></script>
+    <script src="./config.js?v=20260525-5"></script>
+    <script src="./app.js?v=20260525-5"></script>
   </body>
 </html>

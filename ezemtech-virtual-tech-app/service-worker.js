@@ -1,10 +1,10 @@
-const CACHE_NAME = "ezemtech-virtual-tech-v9";
+const CACHE_NAME = "ezemtech-virtual-tech-v10";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./config.js?v=20260525-4",
-  "./styles.css?v=20260525-4",
-  "./app.js?v=20260525-4",
+  "./config.js?v=20260525-5",
+  "./styles.css?v=20260525-5",
+  "./app.js?v=20260525-5",
   "./manifest.webmanifest",
   "./icons/icon.svg",
   "./assets/ezemtech-ezt-logo.png",
