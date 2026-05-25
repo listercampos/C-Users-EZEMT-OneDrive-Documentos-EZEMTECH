@@ -7,6 +7,14 @@
     webhookUrl: "",
     knowledgeBaseUrl: "",
     localKnowledgeBaseUrl: "",
+    technicianEmails: {
+      computers: "",
+      phones: "",
+      drones: "",
+      ai: "",
+      network: "",
+      general: ""
+    },
     ...(window.EZEMTECH_AGENT_CONFIG || {})
   };
 
@@ -35,6 +43,7 @@
         "Listo. Este es el resumen para el equipo tecnico. Puedes enviarlo por email, WhatsApp o reservar una cita.",
       book: "Reservar cita",
       email: "Enviar por email",
+      notifyTech: "Notificar tecnico",
       whatsapp: "Enviar por WhatsApp",
       copySummary: "Copiar resumen",
       copied: "Resumen copiado.",
@@ -57,6 +66,7 @@
         "Done. Here is the summary for the technical team. You can send it by email, WhatsApp, or book an appointment.",
       book: "Book appointment",
       email: "Send by email",
+      notifyTech: "Notify technician",
       whatsapp: "Send by WhatsApp",
       copySummary: "Copy summary",
       copied: "Summary copied.",
@@ -283,6 +293,42 @@
     });
   }
 
+  function classifyTicket(data) {
+    const text = `${state.issue} ${state.serviceType} ${data.device || ""} ${data.description || ""}`.toLowerCase();
+    const categories = [
+      {
+        id: "drones",
+        label: state.language === "es" ? "Drones" : "Drones",
+        keywords: ["drone", "dron", "dji", "calibracion", "calibration", "propeller", "helice", "remote controller", "gimbal"]
+      },
+      {
+        id: "phones",
+        label: state.language === "es" ? "Telefonos" : "Phones",
+        keywords: ["phone", "telefono", "iphone", "android", "samsung", "screen", "pantalla", "battery", "bateria", "sim"]
+      },
+      {
+        id: "ai",
+        label: state.language === "es" ? "IA / Automatizacion" : "AI / Automation",
+        keywords: ["ai", "ia", "chatbot", "automation", "automatizacion", "prompt", "openai", "gemini", "agent"]
+      },
+      {
+        id: "network",
+        label: state.language === "es" ? "Redes / Internet" : "Network / Internet",
+        keywords: ["internet", "wifi", "wi-fi", "router", "network", "red", "dns", "ethernet", "modem"]
+      },
+      {
+        id: "computers",
+        label: state.language === "es" ? "Computadoras" : "Computers",
+        keywords: ["computer", "computadora", "pc", "laptop", "desktop", "windows", "mac", "virus", "malware", "printer", "impresora", "email", "backup"]
+      }
+    ];
+
+    return categories.find((category) => category.keywords.some((keyword) => text.includes(keyword))) || {
+      id: "general",
+      label: state.language === "es" ? "General" : "General"
+    };
+  }
+
   function start() {
     messages.innerHTML = "";
     state.language = "es";
@@ -376,7 +422,8 @@
       return;
     }
 
-    const summary = buildSummary(data);
+    const classification = classifyTicket(data);
+    const summary = buildSummary(data, classification);
     user(state.language === "es" ? "Datos enviados" : "Details submitted");
     bot(t("final"));
     const summaryBubble = document.createElement("div");
@@ -389,18 +436,22 @@
       issue: state.issue,
       urgency: state.urgency,
       serviceType: state.serviceType,
+      classification: classification.id,
+      classificationLabel: classification.label,
+      technicianEmail: getTechnicianEmail(classification.id),
       ...data,
       summary,
       source: window.location.href
     });
-    renderActions(summary);
+    renderActions(summary, classification);
   }
 
-  function buildSummary(data) {
+  function buildSummary(data, classification) {
     const labels =
       state.language === "es"
         ? {
             title: "Nuevo ticket EZEMTECH",
+            classification: "Clasificacion",
             issue: "Problema",
             urgency: "Urgencia",
             service: "Tipo de servicio",
@@ -413,6 +464,7 @@
           }
         : {
             title: "New EZEMTECH ticket",
+            classification: "Classification",
             issue: "Issue",
             urgency: "Urgency",
             service: "Service type",
@@ -425,6 +477,7 @@
           };
 
     return `${labels.title}
+${labels.classification}: ${classification.label}
 ${labels.issue}: ${state.issue}
 ${labels.urgency}: ${state.urgency}
 ${labels.service}: ${state.serviceType}
@@ -438,8 +491,14 @@ ${labels.device}: ${data.device || "N/A"}
 ${labels.description}: ${data.description}`;
   }
 
-  function renderActions(summary) {
+  function getTechnicianEmail(classificationId) {
+    const emails = config.technicianEmails || {};
+    return emails[classificationId] || emails.general || config.contactEmail || "";
+  }
+
+  function renderActions(summary, classification) {
     options.innerHTML = "";
+    const technicianEmail = getTechnicianEmail(classification.id);
 
     if (config.bookingUrl) {
       const book = button(t("book"), () => window.open(config.bookingUrl, "_blank", "noopener"));
@@ -452,6 +511,14 @@ ${labels.description}: ${data.description}`;
         window.location.href = `mailto:${config.contactEmail}?subject=${subject}&body=${encodeURIComponent(summary)}`;
       });
       options.appendChild(email);
+    }
+
+    if (technicianEmail) {
+      const notify = button(t("notifyTech"), () => {
+        const subject = encodeURIComponent(`EZEMTECH ${classification.label} - Nuevo ticket`);
+        window.location.href = `mailto:${technicianEmail}?subject=${subject}&body=${encodeURIComponent(summary)}`;
+      });
+      options.appendChild(notify);
     }
 
     if (config.whatsappNumber) {

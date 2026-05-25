@@ -1,7 +1,23 @@
+const config = {
+  bookingUrl: "https://www.ezemtech.com/book-online",
+  websiteUrl: "https://www.ezemtech.com/",
+  webhookUrl: "",
+  technicianEmails: {
+    computers: "",
+    phones: "",
+    drones: "",
+    ai: "",
+    network: "",
+    general: ""
+  },
+  ...(window.EZEMTECH_VIRTUAL_TECH_CONFIG || {})
+};
+
 const state = {
   language: "es",
   device: "computers",
-  lastTicket: ""
+  lastTicket: "",
+  lastClassification: "computers"
 };
 
 const content = {
@@ -12,6 +28,8 @@ const content = {
     serviceLabel: "Servicio",
     submit: "Diagnosticar",
     copied: "Ticket copiado.",
+    notifyTech: "Notificar tecnico",
+    notified: "Notificacion preparada para el tecnico.",
     welcome:
       "Hola, soy el Tecnico Virtual de EZEMTECH. Elige una categoria, describe el problema y te preparo un diagnostico inicial con proximos pasos.",
     ticketTitle: "Ticket EZEMTECH",
@@ -43,6 +61,8 @@ const content = {
     serviceLabel: "Service",
     submit: "Diagnose",
     copied: "Ticket copied.",
+    notifyTech: "Notify technician",
+    notified: "Technician notification prepared.",
     welcome:
       "Hi, I am the EZEMTECH Virtual Tech. Choose a category, describe the issue, and I will prepare an initial diagnostic with next steps.",
     ticketTitle: "EZEMTECH Ticket",
@@ -72,6 +92,8 @@ const content = {
 const conversation = document.querySelector("#conversation");
 const form = document.querySelector("#diagnosticForm");
 const installButton = document.querySelector(".install-button");
+const copyTicketButton = document.querySelector("#copyTicket");
+const notifyButton = document.createElement("button");
 let installPrompt = null;
 
 function t(key) {
@@ -96,6 +118,7 @@ function setLanguage(language) {
   document.querySelector("#serviceLabel").textContent = t("serviceLabel");
   document.querySelector(".primary-button").textContent = t("submit");
   installButton.textContent = t("install");
+  notifyButton.textContent = t("notifyTech");
   conversation.innerHTML = "";
   addMessage(t("welcome"));
 }
@@ -107,14 +130,51 @@ function setDevice(device) {
   });
 }
 
+function classifyTicket(data) {
+  const text = `${state.device} ${data.issue || ""}`.toLowerCase();
+  const categories = [
+    {
+      id: "drones",
+      keywords: ["drone", "dron", "dji", "calibracion", "calibration", "propeller", "helice", "remote controller", "gimbal"]
+    },
+    {
+      id: "phones",
+      keywords: ["phones", "phone", "telefono", "iphone", "android", "samsung", "screen", "pantalla", "battery", "bateria", "sim"]
+    },
+    {
+      id: "ai",
+      keywords: ["ai", "ia", "chatbot", "automation", "automatizacion", "prompt", "openai", "gemini", "agent"]
+    },
+    {
+      id: "network",
+      keywords: ["internet", "wifi", "wi-fi", "router", "network", "red", "dns", "ethernet", "modem"]
+    },
+    {
+      id: "computers",
+      keywords: ["computers", "computer", "computadora", "pc", "laptop", "desktop", "windows", "mac", "virus", "malware", "printer", "impresora", "email", "backup"]
+    }
+  ];
+
+  const matched = categories.find((category) => category.keywords.some((keyword) => text.includes(keyword)));
+  return matched ? matched.id : "general";
+}
+
+function getTechnicianEmail(classification) {
+  const emails = config.technicianEmails || {};
+  return emails[classification] || emails.general || "";
+}
+
 function buildTicket(data) {
   const current = content[state.language];
   const service = current.services[data.service] || data.service;
   const urgency = current.urgency[data.urgency] || data.urgency;
   const recommendation = current.recommendations[state.device];
+  const classification = classifyTicket(data);
+  state.lastClassification = classification;
 
   return `${current.ticketTitle}
 Categoria: ${state.device}
+Clasificacion: ${classification}
 Urgencia: ${urgency}
 Servicio: ${service}
 
@@ -128,10 +188,35 @@ Recomendacion inicial:
 ${recommendation}
 
 Siguiente paso:
-Reservar en https://www.ezemtech.com/book-online o contactar a EZEMTECH para soporte tecnico.`;
+Reservar en ${config.bookingUrl} o contactar a EZEMTECH para soporte tecnico.`;
 }
 
-form.addEventListener("submit", (event) => {
+async function postWebhook(payload) {
+  if (!config.webhookUrl) return;
+
+  try {
+    await fetch(config.webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    console.warn("EZEMTECH webhook failed", error);
+  }
+}
+
+function notifyTechnician() {
+  if (!state.lastTicket) return;
+
+  const technicianEmail = getTechnicianEmail(state.lastClassification);
+  if (!technicianEmail) return;
+
+  const subject = encodeURIComponent(`EZEMTECH ${state.lastClassification} - Nuevo ticket`);
+  window.location.href = `mailto:${technicianEmail}?subject=${subject}&body=${encodeURIComponent(state.lastTicket)}`;
+  addMessage(t("notified"));
+}
+
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
   state.lastTicket = buildTicket(data);
@@ -142,6 +227,15 @@ form.addEventListener("submit", (event) => {
   answer.innerHTML = `<strong>${content[state.language].ticketTitle}</strong>${state.lastTicket.replace(/\n/g, "<br>")}`;
   conversation.appendChild(answer);
   conversation.scrollTop = conversation.scrollHeight;
+  await postWebhook({
+    language: state.language,
+    category: state.device,
+    classification: state.lastClassification,
+    technicianEmail: getTechnicianEmail(state.lastClassification),
+    ...data,
+    ticket: state.lastTicket,
+    source: window.location.href
+  });
 });
 
 document.querySelectorAll("[data-language]").forEach((button) => {
@@ -152,11 +246,17 @@ document.querySelectorAll("[data-device]").forEach((button) => {
   button.addEventListener("click", () => setDevice(button.dataset.device));
 });
 
-document.querySelector("#copyTicket").addEventListener("click", async () => {
+copyTicketButton.addEventListener("click", async () => {
   if (!state.lastTicket) return;
   await navigator.clipboard.writeText(state.lastTicket);
   addMessage(t("copied"));
 });
+
+notifyButton.className = "action-button";
+notifyButton.type = "button";
+notifyButton.textContent = content.es.notifyTech;
+notifyButton.addEventListener("click", notifyTechnician);
+document.querySelector(".actions").appendChild(notifyButton);
 
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();

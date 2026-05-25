@@ -23,9 +23,35 @@ http://localhost:4174
 3. Ese boton debe abrir la URL publica de esta app.
 4. El usuario podra instalarla desde el navegador si el dispositivo soporta PWA.
 
+## Correos de tecnicos
+
+Configura los correos en `index.html`:
+
+```html
+<script>
+  window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
+    bookingUrl: "https://www.ezemtech.com/book-online",
+    websiteUrl: "https://www.ezemtech.com/",
+    webhookUrl: "",
+    technicianEmails: {
+      computers: "computers@ezemtech.com",
+      phones: "phones@ezemtech.com",
+      drones: "drones@ezemtech.com",
+      ai: "ai@ezemtech.com",
+      network: "network@ezemtech.com",
+      general: "support@ezemtech.com"
+    }
+  };
+</script>
+```
+
+La app clasifica el caso y usa el correo correcto en **Notificar tecnico**. Si agregas `webhookUrl`, tambien envia los datos a Zapier, Make o n8n para mandar el correo automaticamente.
+
 ## Incluye
 
 - Manifest para instalacion.
 - Service worker para carga rapida y uso basico offline.
 - Diagnostico inicial por categoria.
+- Clasificacion automatica de tickets.
+- Notificacion por correo segun categoria tecnica.
 - Enlaces a EZEMTECH.com y booking online.

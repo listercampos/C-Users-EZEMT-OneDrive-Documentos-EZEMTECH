@@ -28,7 +28,15 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
     whatsappNumber: "TU_NUMERO_WHATSAPP_CON_CODIGO_PAIS",
     webhookUrl: "",
     knowledgeBaseUrl: "URL_CSV_PUBLICA_DE_GOOGLE_SHEETS",
-    localKnowledgeBaseUrl: "URL_PUBLICA/local-knowledge.csv"
+    localKnowledgeBaseUrl: "URL_PUBLICA/local-knowledge.csv",
+    technicianEmails: {
+      computers: "computers@ezemtech.com",
+      phones: "phones@ezemtech.com",
+      drones: "drones@ezemtech.com",
+      ai: "ai@ezemtech.com",
+      network: "network@ezemtech.com",
+      general: "support@ezemtech.com"
+    }
   };
 </script>
 <script src="URL_PUBLICA/widget.js"></script>
@@ -42,6 +50,20 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
 - `bookingUrl`: enlace de reservas de EZEMTECH.
 - `knowledgeBaseUrl`: URL publica CSV de Google Sheets para que el agente cargue respuestas actualizadas.
 - `localKnowledgeBaseUrl`: URL publica de un CSV propio, por ejemplo el archivo generado desde `knowledge-dropbox/processed/local-knowledge.csv`.
+- `technicianEmails`: correos por categoria para notificar al tecnico correcto.
+
+## Clasificacion y notificacion
+
+El agente clasifica automaticamente cada ticket en:
+
+- `computers`: computadoras, Windows, Mac, impresoras, virus, backup.
+- `phones`: telefonos, iPhone, Android, pantalla, bateria.
+- `drones`: drones, DJI, calibracion, helice, control, camara.
+- `ai`: IA, chatbots, automatizacion, prompts.
+- `network`: internet, Wi-Fi, router, red.
+- `general`: cualquier caso que no tenga una coincidencia clara.
+
+Si configuras `technicianEmails`, el boton **Notificar tecnico** abre un email dirigido al tecnico correcto. Si configuras `webhookUrl`, el payload tambien incluye `classification`, `classificationLabel` y `technicianEmail` para que Zapier, Make o n8n envie el correo automaticamente.
 
 ## Conexion a Google Sheets
 
