@@ -26,6 +26,18 @@ Backend seguro para que la app y el widget investiguen en internet, respondan co
 - El Worker redacta contrasenas, tarjetas, SSN, API keys y private keys antes de enviar contexto al modelo.
 - `ALLOWED_ORIGINS` debe contener solo tus dominios reales y tus URLs locales de prueba.
 
+## Si aparece "Sin clave de Groq"
+
+Ese mensaje significa que el Worker esta activo, pero falta configurar `GROQ_API_KEY` en Cloudflare:
+
+1. Abre Cloudflare Workers.
+2. Entra al Worker `ezemtech`.
+3. Ve a **Settings > Variables and Secrets**.
+4. Agrega `GROQ_API_KEY` como secreto.
+5. Guarda y vuelve a desplegar.
+
+La app y el widget ya tienen respaldo local: si Groq falta, el cliente no debe ver ese error tecnico y recibira una respuesta de diagnostico basico.
+
 ## Ruteo EZEMTECH
 
 - Ventas, productos y accesorios: `sales@ezemtech.com,listercampos@gmail.com`.

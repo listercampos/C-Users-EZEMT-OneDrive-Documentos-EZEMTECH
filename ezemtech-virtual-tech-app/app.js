@@ -291,6 +291,11 @@ function sanitizePayload(payload) {
   return payload;
 }
 
+function isAssistantConfigReply(reply) {
+  const text = normalize(reply);
+  return /(sin clave de groq|groq no esta configurado|groq_api_key|no se puede generar respuesta ia|missing groq|missing api key)/.test(text);
+}
+
 function speak(text) {
   if (!state.voiceEnabled || !("speechSynthesis" in window)) return;
 
@@ -489,6 +494,7 @@ async function askRemoteAssistant(message) {
 
   if (!response.ok) throw new Error(`Assistant status ${response.status}`);
   const payload = await response.json();
+  if (payload.fallbackRequired || payload.missingConfiguration) return "";
   return payload.reply || payload.answer || payload.message || "";
 }
 
@@ -536,6 +542,10 @@ async function handleUserMessage(message) {
     addMessage(t("thinking"));
     try {
       reply = await askRemoteAssistant(cleanMessage);
+      if (isAssistantConfigReply(reply)) {
+        console.warn("EZEMTECH assistant missing backend configuration");
+        reply = "";
+      }
     } catch (error) {
       console.warn("EZEMTECH assistant failed", error);
     }

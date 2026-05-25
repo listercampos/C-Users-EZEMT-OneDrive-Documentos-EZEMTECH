@@ -305,7 +305,7 @@ async function searchInternet(message, serpApiKey, language) {
 
 async function askGroq({ message, language, category, history, brandPolicy, searchContext, routeEmail, groqApiKey, model }) {
   if (!groqApiKey) {
-    return "Groq no esta configurado. Agrega GROQ_API_KEY como secreto del Worker para activar respuestas IA.";
+    return "";
   }
 
   const systemPrompt = [
@@ -369,6 +369,17 @@ async function handleChat(request, env, body) {
   const routeType = classify(message, body.category);
   const routeEmail = getRouteEmail(routeType);
   const search = await searchInternet(message, env.SERP_API_KEY, language);
+  if (!env.GROQ_API_KEY) {
+    return jsonResponse(request, env, {
+      reply: "",
+      fallbackRequired: true,
+      missingConfiguration: "GROQ_API_KEY",
+      routedTo: routeEmail,
+      category: routeType,
+      sources: search.sources
+    });
+  }
+
   const reply = await askGroq({
     message,
     language,

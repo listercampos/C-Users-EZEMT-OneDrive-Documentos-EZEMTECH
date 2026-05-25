@@ -509,6 +509,14 @@
     return payload;
   }
 
+  function isAssistantConfigReply(reply) {
+    const text = String(reply || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    return /(sin clave de groq|groq no esta configurado|groq_api_key|no se puede generar respuesta ia|missing groq|missing api key)/.test(text);
+  }
+
   function findKnowledgeTip() {
     const issue = state.issue.toLowerCase();
     const service = state.serviceType.toLowerCase();
@@ -617,6 +625,7 @@
 
     if (!response.ok) throw new Error(`Assistant status ${response.status}`);
     const payload = await response.json();
+    if (payload.fallbackRequired || payload.missingConfiguration) return "";
     return payload.reply || payload.answer || payload.message || "";
   }
 
@@ -647,6 +656,10 @@
       let reply = "";
       try {
         reply = await askRemoteAssistant(message);
+        if (isAssistantConfigReply(reply)) {
+          console.warn("EZEMTECH assistant missing backend configuration");
+          reply = "";
+        }
       } catch (error) {
         console.warn("EZEMTECH assistant failed", error);
       }
