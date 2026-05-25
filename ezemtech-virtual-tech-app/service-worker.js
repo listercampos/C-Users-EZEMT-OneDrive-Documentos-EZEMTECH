@@ -1,15 +1,18 @@
-const CACHE_NAME = "ezemtech-virtual-tech-v5";
+const CACHE_NAME = "ezemtech-virtual-tech-v7";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./config.js",
-  "./styles.css",
-  "./app.js",
+  "./config.js?v=20260525-2",
+  "./styles.css?v=20260525-2",
+  "./app.js?v=20260525-2",
   "./manifest.webmanifest",
-  "./icons/icon.svg"
+  "./icons/icon.svg",
+  "./assets/ezemtech-ezt-logo.png",
+  "./assets/ezemtech-wide-logo.png"
 ];
 
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
 });
 
@@ -18,6 +21,7 @@ self.addEventListener("activate", (event) => {
     caches
       .keys()
       .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
 });
 

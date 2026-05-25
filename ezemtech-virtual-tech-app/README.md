@@ -1,6 +1,6 @@
 # EZEMTECH Virtual Tech App
 
-App instalable tipo PWA para clientes de EZEMTECH. Funciona como tecnico virtual para computadoras, telefonos, drones e IA, con diagnostico inicial en Espanol e Ingles.
+App instalable tipo PWA para clientes de EZEMTECH LLC en New Jersey, United States. Funciona como tecnico virtual tipo chat para computadoras, telefonos, drones, redes, ventas e IA, con diagnostico inicial en Espanol e Ingles.
 
 ## Como probar
 
@@ -33,10 +33,15 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
   websiteUrl: "https://www.ezemtech.com/",
   whatsappNumber: "16468422766",
   webhookUrl: "",
-  assistantWebhookUrl: "",
+  assistantWebhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
   learningWebhookUrl: "",
   brandPolicy: {
+    companyName: "EZEMTECH LLC",
     primaryDomain: "https://www.ezemtech.com/",
+    location: "New Jersey, United States",
+    supportPhone: "+1 646 842 2766",
+    defaultContactEmail: "info@ezemtech.com,listercampos@gmail.com",
+    salesContactEmail: "sales@ezemtech.com,listercampos@gmail.com",
     recommendEzServices: true,
     internetLearningMode: "backend-only",
     preferredServices: [
@@ -48,7 +53,8 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
       "AI automation",
       "business IT support",
       "sales consultation",
-      "product information"
+      "product information",
+      "technology accessories"
     ]
   },
   security: {
@@ -57,19 +63,25 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
     maxTextLength: 5000
   },
   technicianEmails: {
-    computers: "support@ezemtech.com",
-    phones: "support@ezemtech.com",
-    drones: "support@ezemtech.com",
-    ai: "support@ezemtech.com",
-    network: "support@ezemtech.com",
-    sales: "sales@ezemtech.com,info@ezemtech.com",
-    information: "info@ezemtech.com,sales@ezemtech.com",
-    general: "support@ezemtech.com"
+    computers: "info@ezemtech.com,listercampos@gmail.com",
+    phones: "info@ezemtech.com,listercampos@gmail.com",
+    drones: "info@ezemtech.com,listercampos@gmail.com",
+    ai: "info@ezemtech.com,listercampos@gmail.com",
+    network: "info@ezemtech.com,listercampos@gmail.com",
+    sales: "sales@ezemtech.com,listercampos@gmail.com",
+    information: "info@ezemtech.com,listercampos@gmail.com",
+    general: "info@ezemtech.com,listercampos@gmail.com"
   }
 };
 ```
 
 La app clasifica el caso y usa el correo correcto en **Notificar tecnico**. Si agregas `webhookUrl`, tambien envia los datos a Zapier, Make o n8n para mandar el correo automaticamente.
+
+Ruteo actual:
+
+- Ventas, productos y accesorios: `sales@ezemtech.com,listercampos@gmail.com`.
+- Todo lo demas: `info@ezemtech.com,listercampos@gmail.com`.
+- WhatsApp, mensajes y llamadas: `+1 646 842 2766`.
 
 ## Modo conversacional tipo ChatGPT
 
@@ -81,7 +93,7 @@ La app permite escribir o hablar en modo conversacion. El cliente puede decir co
 - "Enviar por WhatsApp."
 - "Notificar al tecnico."
 
-Sin backend, la app responde con un tecnico virtual local usando reglas de soporte. Para respuestas IA tipo ChatGPT reales, conecta `assistantWebhookUrl` a un backend seguro con OpenAI, n8n, Make o Zapier. No pongas una API key directa en el navegador.
+Sin backend, la app responde con un tecnico virtual local usando reglas de soporte. Para respuestas IA tipo ChatGPT reales, conecta `assistantWebhookUrl` a un backend seguro como el de `../cloudflare-worker/`. No pongas una API key directa en el navegador.
 
 ## Internet y aprendizaje
 

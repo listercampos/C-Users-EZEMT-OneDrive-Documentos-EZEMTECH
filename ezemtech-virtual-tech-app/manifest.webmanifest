@@ -1,11 +1,11 @@
 {
-  "name": "EZEMTECH Virtual Tech",
-  "short_name": "EZEMTECH Tech",
-  "description": "Tecnico virtual para computadoras, drones, telefonos e IA.",
+  "name": "EZEMTECH AI Tech",
+  "short_name": "EZEMTECH AI",
+  "description": "Tecnico virtual conversacional para computadoras, drones, telefonos, redes, ventas e IA.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f5f7fb",
-  "theme_color": "#0b63ce",
+  "background_color": "#070912",
+  "theme_color": "#070912",
   "icons": [
     {
       "src": "./icons/icon.svg",

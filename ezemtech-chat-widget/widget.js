@@ -5,8 +5,19 @@
     contactEmail: "",
     whatsappNumber: "",
     webhookUrl: "",
+    assistantWebhookUrl: "",
     knowledgeBaseUrl: "",
     localKnowledgeBaseUrl: "",
+    brandPolicy: {
+      companyName: "EZEMTECH LLC",
+      primaryDomain: "https://www.ezemtech.com/",
+      location: "New Jersey, United States",
+      supportPhone: "+1 646 842 2766",
+      defaultContactEmail: "info@ezemtech.com,listercampos@gmail.com",
+      salesContactEmail: "sales@ezemtech.com,listercampos@gmail.com",
+      recommendEzServices: true,
+      internetLearningMode: "backend-only"
+    },
     security: {
       requireHttps: true,
       redactSensitiveData: true,
@@ -32,7 +43,8 @@
     serviceType: "",
     knowledgeBase: [],
     voiceEnabled: false,
-    recognition: null
+    recognition: null,
+    conversationHistory: []
   };
 
   const copy = {
@@ -60,6 +72,12 @@
       voiceOff: "Pausar voz",
       listen: "Dictar problema",
       listening: "Escuchando...",
+      freeChat: "Chat IA / Pregunta libre",
+      freeChatIntro: "Escribe tu pregunta tecnica. Si el backend esta activo, investigare en internet y respondere con IA.",
+      freeChatPlaceholder: "Ejemplo: mi drone DJI no despega, que reviso?",
+      send: "Enviar",
+      thinking: "Investigando y preparando respuesta...",
+      createTicket: "Crear ticket",
       dictationHint: "Cuando llegues al formulario, toca el microfono para dictar la descripcion.",
       speechUnsupported: "La voz no esta disponible en este navegador.",
       micUnsupported: "El microfono no esta disponible en este navegador.",
@@ -90,6 +108,12 @@
       voiceOff: "Pause voice",
       listen: "Dictate issue",
       listening: "Listening...",
+      freeChat: "AI chat / Free question",
+      freeChatIntro: "Type your technical question. If the backend is active, I will research online and answer with AI.",
+      freeChatPlaceholder: "Example: my DJI drone will not take off, what should I check?",
+      send: "Send",
+      thinking: "Researching and preparing an answer...",
+      createTicket: "Create ticket",
       dictationHint: "When you reach the form, tap the microphone to dictate the description.",
       speechUnsupported: "Voice is not available in this browser.",
       micUnsupported: "Microphone is not available in this browser.",
@@ -99,8 +123,8 @@
   };
 
   const issueLabels = {
-    es: ["Computadora lenta", "Virus o malware", "Internet/Wi-Fi", "Impresora", "Email", "Backup o data", "Windows/Mac", "Ventas / Informacion", "Otro"],
-    en: ["Slow computer", "Virus or malware", "Internet/Wi-Fi", "Printer", "Email", "Backup or data", "Windows/Mac", "Sales / Information", "Other"]
+    es: ["Chat IA / Pregunta libre", "Computadora lenta", "Virus o malware", "Internet/Wi-Fi", "Impresora", "Email", "Backup o data", "Windows/Mac", "Ventas / Productos / Accesorios", "Informacion general", "Otro"],
+    en: ["AI chat / Free question", "Slow computer", "Virus or malware", "Internet/Wi-Fi", "Printer", "Email", "Backup or data", "Windows/Mac", "Sales / Products / Accessories", "General information", "Other"]
   };
 
   const urgencyLabels = {
@@ -163,6 +187,7 @@
     </button>
     <section class="ez-agent-panel" aria-live="polite" aria-label="EZEMTECH support chat">
       <header class="ez-agent-header">
+        <img class="ez-agent-logo" src="./assets/ezemtech-ezt-logo.png" alt="EZEMTECH" />
         <div class="ez-agent-title">
           <strong>${copy.es.title}</strong>
           <span>${copy.es.subtitle}</span>
@@ -295,8 +320,8 @@
       return;
     }
 
-    const textarea = options.querySelector('textarea[name="description"]');
-    if (!textarea) {
+    const dictationTarget = options.querySelector('textarea[name="description"], textarea[name="freeMessage"], input[name="freeMessage"]');
+    if (!dictationTarget) {
       bot(t("dictationHint"));
       return;
     }
@@ -317,8 +342,8 @@
 
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
-      textarea.value = `${textarea.value} ${transcript}`.trim();
-      textarea.focus();
+      dictationTarget.value = `${dictationTarget.value} ${transcript}`.trim();
+      dictationTarget.focus();
       user(transcript);
     };
 
@@ -417,6 +442,20 @@
     };
   }
 
+  function getBrandPolicy() {
+    return {
+      companyName: "EZEMTECH LLC",
+      primaryDomain: "https://www.ezemtech.com/",
+      location: "New Jersey, United States",
+      supportPhone: "+1 646 842 2766",
+      defaultContactEmail: "info@ezemtech.com,listercampos@gmail.com",
+      salesContactEmail: "sales@ezemtech.com,listercampos@gmail.com",
+      recommendEzServices: true,
+      internetLearningMode: "backend-only",
+      ...(config.brandPolicy || {})
+    };
+  }
+
   function isSecureUrl(url, options = {}) {
     const { allowRelative = true } = options;
     const rawUrl = String(url || "").trim();
@@ -488,12 +527,12 @@
       {
         id: "sales",
         label: state.language === "es" ? "Ventas" : "Sales",
-        keywords: ["venta", "ventas", "sales", "comprar", "buy", "purchase", "precio", "precios", "price", "pricing", "cotizacion", "quote", "estimate", "presupuesto", "plan", "planes"]
+        keywords: ["venta", "ventas", "sales", "comprar", "buy", "purchase", "precio", "precios", "price", "pricing", "cotizacion", "quote", "estimate", "presupuesto", "plan", "planes", "producto", "productos", "product", "products", "accesorio", "accesorios", "accessory", "accessories", "cable", "cables", "cargador", "charger", "parte", "partes", "parts"]
       },
       {
         id: "information",
         label: state.language === "es" ? "Informacion" : "Information",
-        keywords: ["informacion", "information", "info", "consulta", "question", "pregunta", "servicios", "services", "producto", "productos", "products", "horario", "hours"]
+        keywords: ["informacion", "information", "info", "consulta", "question", "pregunta", "servicios", "services", "horario", "hours"]
       },
       {
         id: "drones",
@@ -528,12 +567,102 @@
     };
   }
 
+  function isFreeChatIssue(issue) {
+    const normalizedIssue = clean(issue).toLowerCase();
+    return normalizedIssue.includes("chat ia") || normalizedIssue.includes("ai chat") || normalizedIssue.includes("pregunta libre") || normalizedIssue.includes("free question");
+  }
+
+  function showThinking() {
+    const bubble = document.createElement("div");
+    bubble.className = "ez-agent-message bot ez-agent-thinking";
+    bubble.textContent = t("thinking");
+    messages.appendChild(bubble);
+    messages.scrollTop = messages.scrollHeight;
+    return bubble;
+  }
+
+  function buildLocalFreeReply(message) {
+    state.issue = message;
+    const tip = findKnowledgeTip();
+    if (tip) return `${t("knowledgeTip")} ${tip.response}`;
+
+    return state.language === "es"
+      ? "Puedo ayudarte con una primera orientacion. Para una respuesta con internet e IA real, configura assistantWebhookUrl al Worker de EZEMTECH. Si quieres seguimiento, toca Crear ticket."
+      : "I can help with first guidance. For a real internet + AI answer, configure assistantWebhookUrl to the EZEMTECH Worker. For follow-up, tap Create ticket.";
+  }
+
+  async function askRemoteAssistant(message) {
+    if (!config.assistantWebhookUrl) return "";
+    if (!isSecureUrl(config.assistantWebhookUrl, { allowRelative: false })) return "";
+
+    const response = await fetch(config.assistantWebhookUrl, {
+      method: "POST",
+      cache: "no-store",
+      credentials: "omit",
+      referrerPolicy: "strict-origin-when-cross-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(sanitizePayload({
+        message: sanitizeText(message),
+        language: state.language,
+        category: "widget",
+        brandPolicy: getBrandPolicy(),
+        history: state.conversationHistory.slice(-6),
+        source: window.location.href
+      }))
+    });
+
+    if (!response.ok) throw new Error(`Assistant status ${response.status}`);
+    const payload = await response.json();
+    return payload.reply || payload.answer || payload.message || "";
+  }
+
+  function showFreeChat() {
+    bot(t("freeChatIntro"));
+    setOptions(`
+      <form class="ez-agent-form ez-agent-free-chat">
+        <textarea class="ez-agent-textarea" name="freeMessage" rows="3" placeholder="${t("freeChatPlaceholder")}"></textarea>
+        <button class="ez-agent-submit" type="submit">${t("send")}</button>
+        <button class="ez-agent-option" type="button" data-create-ticket="true">${t("createTicket")}</button>
+        <p class="ez-agent-footnote">${t("privacy")}</p>
+      </form>
+    `);
+
+    const freeChatForm = options.querySelector("form");
+    freeChatForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const field = freeChatForm.querySelector('[name="freeMessage"]');
+      const message = clean(field.value);
+      if (!message) return;
+
+      field.value = "";
+      state.issue = message;
+      user(sanitizeText(message));
+      state.conversationHistory.push({ role: "user", content: sanitizeText(message) });
+
+      const thinking = showThinking();
+      let reply = "";
+      try {
+        reply = await askRemoteAssistant(message);
+      } catch (error) {
+        console.warn("EZEMTECH assistant failed", error);
+      }
+
+      thinking.remove();
+      if (!reply) reply = buildLocalFreeReply(message);
+      bot(reply);
+      state.conversationHistory.push({ role: "assistant", content: sanitizeText(reply) });
+    });
+
+    freeChatForm.querySelector("[data-create-ticket]").addEventListener("click", askUrgency);
+  }
+
   function start() {
     messages.innerHTML = "";
     state.language = "es";
     state.issue = "";
     state.urgency = "";
     state.serviceType = "";
+    state.conversationHistory = [];
     title.textContent = copy.es.title;
     subtitle.textContent = copy.es.subtitle;
     launcherText.textContent = copy.es.launcher;
@@ -556,6 +685,10 @@
     renderButtonGroup(issueLabels[state.language], (issue) => {
       state.issue = issue;
       user(issue);
+      if (isFreeChatIssue(issue)) {
+        showFreeChat();
+        return;
+      }
       askUrgency();
     });
   }
@@ -652,6 +785,7 @@
         ? {
             title: "Nuevo ticket EZEMTECH",
             classification: "Clasificacion",
+            destination: "Destino interno",
             issue: "Problema",
             urgency: "Urgencia",
             service: "Tipo de servicio",
@@ -665,6 +799,7 @@
         : {
             title: "New EZEMTECH ticket",
             classification: "Classification",
+            destination: "Internal destination",
             issue: "Issue",
             urgency: "Urgency",
             service: "Service type",
@@ -678,6 +813,7 @@
 
     return `${labels.title}
 ${labels.classification}: ${classification.label}
+${labels.destination}: ${getTechnicianEmail(classification.id) || "N/A"}
 ${labels.issue}: ${state.issue}
 ${labels.urgency}: ${state.urgency}
 ${labels.service}: ${state.serviceType}
@@ -688,7 +824,10 @@ ${labels.email}: ${data.email || "N/A"}
 ${labels.location}: ${data.location || "N/A"}
 ${labels.device}: ${data.device || "N/A"}
 
-${labels.description}: ${data.description}`;
+${labels.description}: ${data.description}
+
+EZEMTECH LLC - New Jersey, USA
+WhatsApp / Calls: +1 646 842 2766`;
   }
 
   function getTechnicianEmail(classificationId) {

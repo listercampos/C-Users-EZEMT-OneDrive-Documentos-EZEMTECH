@@ -1,6 +1,6 @@
 # EZEMTECH Support Agent Widget
 
-Widget rapido para atender clientes de EZEMTECH desde la web. Funciona sin servidor: pregunta el problema, detecta urgencia, captura datos y crea un resumen para el tecnico.
+Widget rapido para atender clientes de EZEMTECH LLC desde la web. Puede funcionar sin servidor con flujo guiado y tambien conectarse a un Worker seguro para chat IA con busqueda en internet.
 
 ## Archivos
 
@@ -8,6 +8,7 @@ Widget rapido para atender clientes de EZEMTECH desde la web. Funciona sin servi
 - `config.js`: configuracion del demo y datos de contacto.
 - `styles.css`: estilos del widget.
 - `widget.js`: logica del agente.
+- `assets/ezemtech-ezt-logo.png`: logo del encabezado.
 
 ## Como probarlo
 
@@ -15,7 +16,7 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
 
 ## Como instalarlo en Wix / EZEMTECH.com
 
-1. Sube `styles.css`, `widget.js` y opcionalmente `config.js` a un lugar publico, por ejemplo al hosting de archivos que uses o a tu servidor.
+1. Sube `styles.css`, `widget.js`, `assets/` y opcionalmente `config.js` a un lugar publico, por ejemplo al hosting de archivos que uses o a tu servidor.
 2. En Wix, entra a **Settings > Custom Code**.
 3. Agrega este bloque antes de cerrar `</body>`:
 
@@ -32,25 +33,36 @@ Si necesitas configurar directo en Wix, puedes usar este bloque antes de `widget
   window.EZEMTECH_AGENT_CONFIG = {
     businessName: "EZEMTECH",
     bookingUrl: "https://www.ezemtech.com/book-online",
-    contactEmail: "support@ezemtech.com",
+    contactEmail: "info@ezemtech.com,listercampos@gmail.com",
     whatsappNumber: "16468422766",
     webhookUrl: "",
+    assistantWebhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
     knowledgeBaseUrl: "URL_CSV_PUBLICA_DE_GOOGLE_SHEETS",
     localKnowledgeBaseUrl: "URL_PUBLICA/local-knowledge.csv",
+    brandPolicy: {
+      companyName: "EZEMTECH LLC",
+      primaryDomain: "https://www.ezemtech.com/",
+      location: "New Jersey, United States",
+      supportPhone: "+1 646 842 2766",
+      defaultContactEmail: "info@ezemtech.com,listercampos@gmail.com",
+      salesContactEmail: "sales@ezemtech.com,listercampos@gmail.com",
+      recommendEzServices: true,
+      internetLearningMode: "backend-only"
+    },
     security: {
       requireHttps: true,
       redactSensitiveData: true,
       maxTextLength: 5000
     },
     technicianEmails: {
-      computers: "support@ezemtech.com",
-      phones: "support@ezemtech.com",
-      drones: "support@ezemtech.com",
-      ai: "support@ezemtech.com",
-      network: "support@ezemtech.com",
-      sales: "sales@ezemtech.com,info@ezemtech.com",
-      information: "info@ezemtech.com,sales@ezemtech.com",
-      general: "support@ezemtech.com"
+      computers: "info@ezemtech.com,listercampos@gmail.com",
+      phones: "info@ezemtech.com,listercampos@gmail.com",
+      drones: "info@ezemtech.com,listercampos@gmail.com",
+      ai: "info@ezemtech.com,listercampos@gmail.com",
+      network: "info@ezemtech.com,listercampos@gmail.com",
+      sales: "sales@ezemtech.com,listercampos@gmail.com",
+      information: "info@ezemtech.com,listercampos@gmail.com",
+      general: "info@ezemtech.com,listercampos@gmail.com"
     }
   };
 </script>
@@ -62,6 +74,7 @@ Si necesitas configurar directo en Wix, puedes usar este bloque antes de `widget
 - `contactEmail`: email donde quieres recibir tickets.
 - `whatsappNumber`: numero en formato internacional sin signos. Ejemplo: `15551234567`.
 - `webhookUrl`: URL opcional de Zapier, Make o n8n para crear tickets automaticamente.
+- `assistantWebhookUrl`: URL HTTPS del Worker para chat IA con busqueda en internet.
 - `bookingUrl`: enlace de reservas de EZEMTECH.
 - `knowledgeBaseUrl`: URL publica CSV de Google Sheets para que el agente cargue respuestas actualizadas.
 - `localKnowledgeBaseUrl`: URL publica de un CSV propio, por ejemplo el archivo generado desde `knowledge-dropbox/processed/local-knowledge.csv`.
@@ -74,6 +87,8 @@ Si necesitas configurar directo en Wix, puedes usar este bloque antes de `widget
 
 El widget no guarda datos en `localStorage`. Antes de enviar un ticket a webhook, email, WhatsApp o copia, redacta informacion sensible comun. Para envio automatico real usa siempre `https://` y nunca pongas API keys de IA en el navegador.
 
+Si usas `assistantWebhookUrl`, las claves de SerpAPI/Groq deben vivir en el Worker, no en este widget.
+
 ## Clasificacion y notificacion
 
 El agente clasifica automaticamente cada ticket en:
@@ -83,9 +98,15 @@ El agente clasifica automaticamente cada ticket en:
 - `drones`: drones, DJI, calibracion, helice, control, camara.
 - `ai`: IA, chatbots, automatizacion, prompts.
 - `network`: internet, Wi-Fi, router, red.
-- `sales`: ventas, precios, cotizaciones, compras.
-- `information`: informacion general, preguntas sobre productos o servicios.
+- `sales`: ventas, productos, accesorios, precios, cotizaciones, compras.
+- `information`: informacion general, preguntas sobre servicios, horarios o reservas.
 - `general`: cualquier caso que no tenga una coincidencia clara.
+
+Ruteo actual:
+
+- Ventas, productos y accesorios: `sales@ezemtech.com,listercampos@gmail.com`.
+- Todo lo demas: `info@ezemtech.com,listercampos@gmail.com`.
+- WhatsApp, mensajes y llamadas: `+1 646 842 2766`.
 
 Si configuras `technicianEmails`, el boton **Notificar tecnico** abre un email dirigido al tecnico correcto. Si configuras `webhookUrl`, el payload tambien incluye `classification`, `classificationLabel` y `technicianEmail` para que Zapier, Make o n8n envie el correo automaticamente.
 

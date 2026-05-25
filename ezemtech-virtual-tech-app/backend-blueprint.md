@@ -2,6 +2,8 @@
 
 La app ya envia solicitudes listas para un backend por `assistantWebhookUrl` y `learningWebhookUrl`.
 
+El backend listo para Cloudflare esta en `../cloudflare-worker/worker.js`.
+
 ## `assistantWebhookUrl`
 
 Recibe:
@@ -12,7 +14,10 @@ Recibe:
   "language": "es",
   "category": "computers",
   "brandPolicy": {
+    "companyName": "EZEMTECH LLC",
     "primaryDomain": "https://www.ezemtech.com/",
+    "location": "New Jersey, United States",
+    "supportPhone": "+1 646 842 2766",
     "recommendEzServices": true,
     "internetLearningMode": "backend-only"
   },
@@ -26,7 +31,10 @@ Debe responder:
 
 ```json
 {
-  "reply": "Respuesta final para el cliente."
+  "reply": "Respuesta final para el cliente.",
+  "routedTo": "info@ezemtech.com,listercampos@gmail.com",
+  "category": "default",
+  "sources": []
 }
 ```
 
@@ -57,3 +65,5 @@ Solo recibe datos cuando el cliente acepta guardar la conversacion. Recibe event
 - Consultar primero `ezemtech.com`.
 - Recomendar servicios/productos de EZEMTECH cuando aplique.
 - No devolver secretos al navegador.
+- Rutar ventas/productos/accesorios a `sales@ezemtech.com,listercampos@gmail.com`.
+- Rutar todo lo demas a `info@ezemtech.com,listercampos@gmail.com`.

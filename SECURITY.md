@@ -5,6 +5,7 @@ La seguridad de datos de clientes y claves de IA es prioridad. Este proyecto est
 ## Reglas principales
 
 - No pongas API keys de OpenAI, Gemini, correo, Twilio, Make, Zapier o n8n dentro de `app.js`, `widget.js`, `index.html` ni `config.js`.
+- No pongas tokens de Cloudflare (`cfut_...`), Groq (`gsk_...`), SerpAPI ni GitHub dentro del repo ni en capturas publicas.
 - Toda IA real debe pasar por un backend seguro, por ejemplo n8n, Make, Zapier, Cloudflare Worker, Vercel Function o servidor propio.
 - Usa solo URLs `https://` para `webhookUrl`, `assistantWebhookUrl`, `learningWebhookUrl`, Google Sheets publicado y cualquier API externa.
 - No pidas ni guardes contrasenas de clientes. El agente ya muestra avisos para no compartir contrasenas.
@@ -54,3 +55,5 @@ La busqueda en internet debe ocurrir en el backend, no en el navegador. El backe
 3. Revisa historial de GitHub.
 4. Revisa logs del proveedor.
 5. Genera nuevas credenciales y vuelve a desplegar.
+
+Si el token expuesto es de Cloudflare, entra a **Cloudflare Dashboard > Manage Account > API Tokens**, revoca ese token y crea uno nuevo solo si hace falta. Luego actualiza los secretos del Worker desde el panel de Cloudflare, nunca desde el frontend.

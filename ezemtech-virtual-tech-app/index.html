@@ -3,82 +3,68 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0b63ce" />
+    <meta name="theme-color" content="#070912" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; connect-src 'self' https:; img-src 'self' data:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
     />
-    <title>EZEMTECH Virtual Tech</title>
+    <title>EZEMTECH AI Tech</title>
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=20260525-2" />
   </head>
   <body>
     <main class="app-shell">
-      <section class="hero">
-        <div>
-          <p class="eyebrow">EZEMTECH</p>
-          <h1>Tecnico Virtual</h1>
+      <header class="topbar">
+        <a class="brand-chip" href="https://www.ezemtech.com/" target="_blank" rel="noopener" aria-label="Abrir EZEMTECH.com">
+          <img src="./assets/ezemtech-ezt-logo.png" alt="EZEMTECH" />
+          <span>
+            <strong>EZEMTECH AI Tech</strong>
+            <small>EZEMTECH LLC - New Jersey, USA</small>
+          </span>
+        </a>
+
+        <section class="toolbar" aria-label="Controles">
+          <div class="segmented" role="group" aria-label="Idioma">
+            <button class="segment active" type="button" data-language="es">ES</button>
+            <button class="segment" type="button" data-language="en">EN</button>
+          </div>
+          <div class="voice-tools" role="group" aria-label="Voz">
+            <button class="icon-button" id="toggleVoice" type="button" aria-label="Activar voz" title="Activar voz" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 5 6 9H3v6h3l5 4V5z"></path>
+                <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+                <path d="M18.5 5.5a9 9 0 0 1 0 13"></path>
+              </svg>
+            </button>
+            <button class="icon-button" id="dictateIssue" type="button" aria-label="Dictar problema" title="Dictar problema" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <path d="M12 19v3"></path>
+              </svg>
+            </button>
+          </div>
+          <button class="install-button" type="button" hidden>Instalar app</button>
+        </section>
+      </header>
+
+      <section class="chat-stage" aria-label="Tecnico virtual EZEMTECH">
+        <div class="welcome-lockup">
+          <img class="welcome-logo" src="./assets/ezemtech-ezt-logo.png" alt="Logo EZEMTECH" />
+          <p class="eyebrow">Tecnico virtual con voz, internet y tickets</p>
+          <h1>En que puedo ayudarte hoy?</h1>
           <p class="hero-copy">
-            Diagnostico rapido para computadoras, drones, telefonos e IA. Disponible en
-            espanol e ingles, conectado a EZEMTECH.com para reservas y soporte.
+            Habla o escribe como en ChatGPT. Puedo diagnosticar computadoras, telefonos,
+            drones, IA, redes, ventas y reservas de EZEMTECH.
           </p>
+          <div class="status-line" aria-label="Estado">
+            <span class="status-dot"></span>
+            <strong>Online</strong>
+            <span>WhatsApp y llamadas: +1 646 842 2766</span>
+          </div>
         </div>
-        <div class="status-card">
-          <span class="status-dot"></span>
-          <strong>Online</strong>
-          <small>Soporte remoto y presencial</small>
-        </div>
-      </section>
 
-      <section class="toolbar" aria-label="Controles">
-        <div class="segmented" role="group" aria-label="Idioma">
-          <button class="segment active" type="button" data-language="es">ES</button>
-          <button class="segment" type="button" data-language="en">EN</button>
-        </div>
-        <div class="voice-tools" role="group" aria-label="Voz">
-          <button class="icon-button" id="toggleVoice" type="button" aria-label="Activar voz" title="Activar voz" aria-pressed="false">
-            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M11 5 6 9H3v6h3l5 4V5z"></path>
-              <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
-              <path d="M18.5 5.5a9 9 0 0 1 0 13"></path>
-            </svg>
-          </button>
-          <button class="icon-button" id="dictateIssue" type="button" aria-label="Dictar problema" title="Dictar problema" aria-pressed="false">
-            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"></path>
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-              <path d="M12 19v3"></path>
-            </svg>
-          </button>
-        </div>
-        <button class="install-button" type="button" hidden>Instalar app</button>
-      </section>
-
-      <section class="service-grid" aria-label="Categorias de soporte">
-        <button class="service-card active" type="button" data-device="computers">
-          <span>PC</span>
-          <strong>Computadoras</strong>
-          <small>Windows, Mac, internet, virus</small>
-        </button>
-        <button class="service-card" type="button" data-device="phones">
-          <span>PH</span>
-          <strong>Telefonos</strong>
-          <small>iPhone, Android, apps, datos</small>
-        </button>
-        <button class="service-card" type="button" data-device="drones">
-          <span>DR</span>
-          <strong>Drones</strong>
-          <small>Conexion, camara, calibracion</small>
-        </button>
-        <button class="service-card" type="button" data-device="ai">
-          <span>AI</span>
-          <strong>IA</strong>
-          <small>Chatbots, automatizacion, prompts</small>
-        </button>
-      </section>
-
-      <section class="diagnostic-panel">
         <div class="chat-column">
           <div class="conversation" id="conversation" aria-live="polite"></div>
           <form class="chat-composer" id="chatForm">
@@ -89,6 +75,55 @@
             <input id="learningConsent" type="checkbox" />
             <span id="learningConsentText">Permitir guardar esta conversacion para mejorar el servicio.</span>
           </label>
+        </div>
+
+        <section class="service-grid" aria-label="Categorias de soporte">
+          <button class="service-card active" type="button" data-device="computers">
+            <span>PC</span>
+            <strong>Computadoras</strong>
+            <small>Windows, Mac, virus</small>
+          </button>
+          <button class="service-card" type="button" data-device="phones">
+            <span>PH</span>
+            <strong>Telefonos</strong>
+            <small>iPhone, Android, datos</small>
+          </button>
+          <button class="service-card" type="button" data-device="drones">
+            <span>DR</span>
+            <strong>Drones</strong>
+            <small>DJI, camara, calibracion</small>
+          </button>
+          <button class="service-card" type="button" data-device="network">
+            <span>NW</span>
+            <strong>Redes</strong>
+            <small>Wi-Fi, router, internet</small>
+          </button>
+          <button class="service-card" type="button" data-device="ai">
+            <span>AI</span>
+            <strong>IA</strong>
+            <small>Chatbots, automatizacion</small>
+          </button>
+          <button class="service-card" type="button" data-device="sales">
+            <span>$$</span>
+            <strong>Ventas</strong>
+            <small>Productos, accesorios, precios</small>
+          </button>
+          <button class="service-card" type="button" data-device="information">
+            <span>IN</span>
+            <strong>Info</strong>
+            <small>Servicios, horarios, reservas</small>
+          </button>
+        </section>
+      </section>
+
+      <section class="ticket-area" aria-label="Crear ticket para tecnicos">
+        <div class="ticket-copy">
+          <p class="eyebrow">Ticket seguro</p>
+          <h2>Clasifica y notifica al equipo correcto</h2>
+          <p>
+            Cuando el cliente necesite seguimiento, crea un ticket con datos minimos.
+            La app redacta contrasenas, tarjetas, SSN y claves antes de enviar.
+          </p>
         </div>
 
         <form class="diagnostic-form" id="diagnosticForm">
@@ -135,7 +170,7 @@
       </section>
     </main>
 
-    <script src="./config.js"></script>
-    <script src="./app.js"></script>
+    <script src="./config.js?v=20260525-2"></script>
+    <script src="./app.js?v=20260525-2"></script>
   </body>
 </html>

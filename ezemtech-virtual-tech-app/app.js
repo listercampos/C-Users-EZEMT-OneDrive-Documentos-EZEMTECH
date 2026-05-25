@@ -1,12 +1,17 @@
 const config = {
   bookingUrl: "https://www.ezemtech.com/book-online",
   websiteUrl: "https://www.ezemtech.com/",
-  whatsappNumber: "",
+  whatsappNumber: "16468422766",
   webhookUrl: "",
   assistantWebhookUrl: "",
   learningWebhookUrl: "",
   brandPolicy: {
+    companyName: "EZEMTECH LLC",
     primaryDomain: "https://www.ezemtech.com/",
+    location: "New Jersey, United States",
+    supportPhone: "+1 646 842 2766",
+    defaultContactEmail: "info@ezemtech.com,listercampos@gmail.com",
+    salesContactEmail: "sales@ezemtech.com,listercampos@gmail.com",
     recommendEzServices: true,
     internetLearningMode: "backend-only",
     preferredServices: [
@@ -18,7 +23,8 @@ const config = {
       "AI automation",
       "business IT support",
       "sales consultation",
-      "product information"
+      "product information",
+      "technology accessories"
     ]
   },
   security: {
@@ -75,7 +81,7 @@ const content = {
     aiOffline:
       "Todavia no hay IA externa conectada. Te respondo con el tecnico virtual local de EZEMTECH.",
     welcome:
-      "Hola, soy el Tecnico Virtual de EZEMTECH. Puedes hablarme como a ChatGPT: dime el problema, pideme abrir una cita, enviar WhatsApp o crear un ticket.",
+      "Hola, soy el Tecnico Virtual de EZEMTECH LLC en New Jersey. Puedes hablarme como a ChatGPT: dime el problema, pide una cita, envia WhatsApp o crea un ticket.",
     ticketTitle: "Ticket EZEMTECH",
     recommendations: {
       computers:
@@ -89,9 +95,9 @@ const content = {
       network:
         "Reinicia modem/router, confirma si otros equipos tienen internet y verifica si el problema es Wi-Fi, cable, DNS o configuracion del equipo.",
       sales:
-        "Para ventas, cotizaciones o precios, EZEMTECH puede revisar tus necesidades y recomendar el servicio o producto adecuado.",
+        "Para ventas, productos, accesorios, cotizaciones o precios, EZEMTECH puede revisar tus necesidades y recomendar la opcion adecuada.",
       information:
-        "Para informacion general, EZEMTECH puede explicar servicios, disponibilidad, soporte remoto/presencial y opciones de reserva."
+        "Para informacion general, EZEMTECH puede explicar servicios, disponibilidad, soporte remoto/presencial, reservas y opciones de contacto."
     },
     services: {
       remote: "Remoto",
@@ -128,7 +134,7 @@ const content = {
     aiOffline:
       "No external AI is connected yet. I am answering with the local EZEMTECH virtual tech.",
     welcome:
-      "Hi, I am the EZEMTECH Virtual Tech. You can talk to me like ChatGPT: tell me the issue, ask me to open booking, send WhatsApp, or create a ticket.",
+      "Hi, I am the EZEMTECH LLC Virtual Tech in New Jersey. You can talk to me like ChatGPT: tell me the issue, ask me to book, send WhatsApp, or create a ticket.",
     ticketTitle: "EZEMTECH Ticket",
     recommendations: {
       computers:
@@ -142,9 +148,9 @@ const content = {
       network:
         "Restart the modem/router, confirm whether other devices are online, and check if the issue is Wi-Fi, cable, DNS, or device configuration.",
       sales:
-        "For sales, quotes, or pricing, EZEMTECH can review your needs and recommend the right service or product.",
+        "For sales, products, accessories, quotes, or pricing, EZEMTECH can review your needs and recommend the right option.",
       information:
-        "For general information, EZEMTECH can explain services, availability, remote/on-site support, and booking options."
+        "For general information, EZEMTECH can explain services, availability, remote/on-site support, booking, and contact options."
     },
     services: {
       remote: "Remote",
@@ -219,7 +225,12 @@ function getSecurityConfig() {
 
 function getBrandPolicy() {
   return {
+    companyName: "EZEMTECH LLC",
     primaryDomain: "https://www.ezemtech.com/",
+    location: "New Jersey, United States",
+    supportPhone: "+1 646 842 2766",
+    defaultContactEmail: "info@ezemtech.com,listercampos@gmail.com",
+    salesContactEmail: "sales@ezemtech.com,listercampos@gmail.com",
     recommendEzServices: true,
     internetLearningMode: "backend-only",
     preferredServices: [],
@@ -367,8 +378,8 @@ function inferDeviceFromMessage(message) {
   const text = normalize(message);
 
   if (/(drone|dron|dji|helice|gimbal|control remoto|calibracion)/.test(text)) return "drones";
-  if (/(venta|ventas|sales|comprar|buy|purchase|precio|precios|price|pricing|cotizacion|quote|estimate|presupuesto|plan|planes)/.test(text)) return "sales";
-  if (/(informacion|information|info|consulta|question|pregunta|servicios|services|producto|productos|products|horario|hours)/.test(text)) return "information";
+  if (/(venta|ventas|sales|comprar|buy|purchase|precio|precios|price|pricing|cotizacion|quote|estimate|presupuesto|plan|planes|producto|productos|product|products|accesorio|accesorios|accessory|accessories|cable|cables|cargador|charger|parte|partes|parts)/.test(text)) return "sales";
+  if (/(informacion|information|info|consulta|question|pregunta|servicios|services|horario|hours)/.test(text)) return "information";
   if (/(telefono|phone|iphone|android|samsung|pantalla|bateria|sim)/.test(text)) return "phones";
   if (/(ia|ai|chatbot|automatizacion|automation|prompt|openai|gemini|agente)/.test(text)) return "ai";
   if (/(wifi|wi-fi|internet|router|red|network|modem|dns)/.test(text)) return "network";
@@ -548,11 +559,11 @@ function classifyTicket(data) {
   const categories = [
     {
       id: "sales",
-      keywords: ["venta", "ventas", "sales", "comprar", "buy", "purchase", "precio", "precios", "price", "pricing", "cotizacion", "quote", "estimate", "presupuesto", "plan", "planes"]
+      keywords: ["venta", "ventas", "sales", "comprar", "buy", "purchase", "precio", "precios", "price", "pricing", "cotizacion", "quote", "estimate", "presupuesto", "plan", "planes", "producto", "productos", "product", "products", "accesorio", "accesorios", "accessory", "accessories", "cable", "cables", "cargador", "charger", "parte", "partes", "parts"]
     },
     {
       id: "information",
-      keywords: ["informacion", "information", "info", "consulta", "question", "pregunta", "servicios", "services", "producto", "productos", "products", "horario", "hours"]
+      keywords: ["informacion", "information", "info", "consulta", "question", "pregunta", "servicios", "services", "horario", "hours"]
     },
     {
       id: "drones",
@@ -591,11 +602,13 @@ function buildTicket(data) {
   const urgency = current.urgency[data.urgency] || data.urgency;
   const recommendation = current.recommendations[state.device] || current.recommendations.computers;
   const classification = classifyTicket(data);
+  const technicianEmail = getTechnicianEmail(classification);
   state.lastClassification = classification;
 
   return `${current.ticketTitle}
 Categoria: ${state.device}
 Clasificacion: ${classification}
+Destino interno: ${technicianEmail || "N/A"}
 Urgencia: ${urgency}
 Servicio: ${service}
 
@@ -609,7 +622,7 @@ Recomendacion inicial:
 ${recommendation}
 
 Siguiente paso:
-Reservar en ${config.bookingUrl} o contactar a EZEMTECH para soporte tecnico.`;
+Reservar en ${config.bookingUrl}, llamar o enviar WhatsApp a +1 646 842 2766, o contactar a EZEMTECH para soporte tecnico.`;
 }
 
 async function postWebhook(payload) {
