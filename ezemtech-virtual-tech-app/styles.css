@@ -97,7 +97,7 @@ h1 {
 
 .toolbar {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   gap: 12px;
   margin: 8px 0 16px;
 }
@@ -111,6 +111,7 @@ h1 {
 }
 
 .segment,
+.icon-button,
 .install-button,
 .primary-button,
 .action-button {
@@ -119,6 +120,32 @@ h1 {
   border-radius: 6px;
   cursor: pointer;
   font-weight: 800;
+}
+
+.voice-tools {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.icon-button svg {
+  width: 19px;
+  height: 19px;
+}
+
+.icon-button.active {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
 }
 
 .segment {
@@ -139,6 +166,10 @@ h1 {
 .primary-button,
 .action-button {
   padding: 0 16px;
+}
+
+.install-button {
+  margin-left: auto;
 }
 
 .install-button:hover,
@@ -314,6 +345,14 @@ h1 {
 
   .segmented {
     width: 100%;
+  }
+
+  .voice-tools {
+    width: 100%;
+  }
+
+  .icon-button {
+    flex: 1;
   }
 
   .segment {

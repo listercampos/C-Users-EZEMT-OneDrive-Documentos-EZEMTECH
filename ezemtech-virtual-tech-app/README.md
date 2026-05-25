@@ -55,4 +55,10 @@ La app clasifica el caso y usa el correo correcto en **Notificar tecnico**. Si a
 - Diagnostico inicial por categoria.
 - Clasificacion automatica de tickets.
 - Notificacion por correo segun categoria tecnica.
+- Voz para leer respuestas en alto.
+- Microfono para dictar el problema.
 - Enlaces a EZEMTECH.com y booking online.
+
+## Voz y microfono
+
+La app usa `speechSynthesis` para hablar y `SpeechRecognition` cuando el navegador lo soporte. El microfono requiere permiso del usuario y la app debe estar publicada en HTTPS o ejecutarse en `localhost`.

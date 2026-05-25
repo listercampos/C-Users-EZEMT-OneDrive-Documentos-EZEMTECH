@@ -23,7 +23,9 @@
     issue: "",
     urgency: "",
     serviceType: "",
-    knowledgeBase: []
+    knowledgeBase: [],
+    voiceEnabled: false,
+    recognition: null
   };
 
   const copy = {
@@ -47,6 +49,13 @@
       whatsapp: "Enviar por WhatsApp",
       copySummary: "Copiar resumen",
       copied: "Resumen copiado.",
+      voiceOn: "Activar voz",
+      voiceOff: "Pausar voz",
+      listen: "Dictar problema",
+      listening: "Escuchando...",
+      dictationHint: "Cuando llegues al formulario, toca el microfono para dictar la descripcion.",
+      speechUnsupported: "La voz no esta disponible en este navegador.",
+      micUnsupported: "El microfono no esta disponible en este navegador.",
       required: "Por favor completa nombre, telefono/email y descripcion.",
       privacy: "No compartas contrasenas. Un tecnico puede pedir detalles adicionales antes de conectarse."
     },
@@ -70,6 +79,13 @@
       whatsapp: "Send by WhatsApp",
       copySummary: "Copy summary",
       copied: "Summary copied.",
+      voiceOn: "Turn voice on",
+      voiceOff: "Pause voice",
+      listen: "Dictate issue",
+      listening: "Listening...",
+      dictationHint: "When you reach the form, tap the microphone to dictate the description.",
+      speechUnsupported: "Voice is not available in this browser.",
+      micUnsupported: "Microphone is not available in this browser.",
       required: "Please complete name, phone/email, and description.",
       privacy: "Do not share passwords. A technician may ask for more details before connecting."
     }
@@ -144,7 +160,23 @@
           <strong>${copy.es.title}</strong>
           <span>${copy.es.subtitle}</span>
         </div>
-        <button class="ez-agent-close" type="button" aria-label="Close chat">&times;</button>
+        <div class="ez-agent-header-actions">
+          <button class="ez-agent-icon-button ez-agent-voice" type="button" aria-label="${copy.es.voiceOn}" title="${copy.es.voiceOn}" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 5 6 9H3v6h3l5 4V5z"></path>
+              <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+              <path d="M18.5 5.5a9 9 0 0 1 0 13"></path>
+            </svg>
+          </button>
+          <button class="ez-agent-icon-button ez-agent-mic" type="button" aria-label="${copy.es.listen}" title="${copy.es.listen}" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <path d="M12 19v3"></path>
+            </svg>
+          </button>
+          <button class="ez-agent-close" type="button" aria-label="Close chat">&times;</button>
+        </div>
       </header>
       <div class="ez-agent-messages"></div>
       <div class="ez-agent-options"></div>
@@ -157,6 +189,8 @@
   const launcherText = launcher.querySelector("span");
   const panel = root.querySelector(".ez-agent-panel");
   const close = root.querySelector(".ez-agent-close");
+  const voiceButton = root.querySelector(".ez-agent-voice");
+  const micButton = root.querySelector(".ez-agent-mic");
   const messages = root.querySelector(".ez-agent-messages");
   const options = root.querySelector(".ez-agent-options");
   const title = root.querySelector(".ez-agent-title strong");
@@ -172,6 +206,7 @@
     bubble.textContent = text;
     messages.appendChild(bubble);
     messages.scrollTop = messages.scrollHeight;
+    speak(text);
   }
 
   function user(text) {
@@ -201,6 +236,93 @@
     labels.forEach((label) => wrap.appendChild(button(label, () => onSelect(label))));
     options.innerHTML = "";
     options.appendChild(wrap);
+  }
+
+  function getSpeechLanguage() {
+    return state.language === "es" ? "es-US" : "en-US";
+  }
+
+  function speak(text) {
+    if (!state.voiceEnabled || !("speechSynthesis" in window)) return;
+
+    const cleanText = String(text || "").replace(/\s+/g, " ").trim();
+    if (!cleanText) return;
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(cleanText.slice(0, 700));
+    utterance.lang = getSpeechLanguage();
+    utterance.rate = 0.95;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function updateVoiceControls() {
+    voiceButton.title = state.voiceEnabled ? t("voiceOff") : t("voiceOn");
+    voiceButton.setAttribute("aria-label", state.voiceEnabled ? t("voiceOff") : t("voiceOn"));
+    voiceButton.setAttribute("aria-pressed", String(state.voiceEnabled));
+    voiceButton.classList.toggle("active", state.voiceEnabled);
+    micButton.title = t("listen");
+    micButton.setAttribute("aria-label", t("listen"));
+  }
+
+  function toggleVoice() {
+    if (!("speechSynthesis" in window)) {
+      bot(t("speechUnsupported"));
+      return;
+    }
+
+    state.voiceEnabled = !state.voiceEnabled;
+    updateVoiceControls();
+
+    if (state.voiceEnabled) {
+      bot(t("voiceOn"));
+    } else {
+      window.speechSynthesis.cancel();
+      bot(t("voiceOff"));
+    }
+  }
+
+  function startDictation() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      bot(t("micUnsupported"));
+      return;
+    }
+
+    const textarea = options.querySelector('textarea[name="description"]');
+    if (!textarea) {
+      bot(t("dictationHint"));
+      return;
+    }
+
+    if (state.recognition) {
+      state.recognition.stop();
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    state.recognition = recognition;
+    recognition.lang = getSpeechLanguage();
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    micButton.setAttribute("aria-pressed", "true");
+    micButton.classList.add("active");
+    bot(t("listening"));
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      textarea.value = `${textarea.value} ${transcript}`.trim();
+      textarea.focus();
+      user(transcript);
+    };
+
+    recognition.onerror = () => bot(t("micUnsupported"));
+    recognition.onend = () => {
+      state.recognition = null;
+      micButton.setAttribute("aria-pressed", "false");
+      micButton.classList.remove("active");
+    };
+
+    recognition.start();
   }
 
   async function loadKnowledgeBase() {
@@ -346,6 +468,7 @@
       title.textContent = t("title");
       subtitle.textContent = t("subtitle");
       launcherText.textContent = t("launcher");
+      updateVoiceControls();
       user(language);
       askIssue();
     });
@@ -556,5 +679,8 @@ ${labels.description}: ${data.description}`;
   });
 
   loadKnowledgeBase();
+  updateVoiceControls();
+  voiceButton.addEventListener("click", toggleVoice);
+  micButton.addEventListener("click", startDictation);
   close.addEventListener("click", () => panel.setAttribute("data-open", "false"));
 })();

@@ -105,3 +105,12 @@ El navegador no puede leer PDFs o imagenes directamente desde una carpeta local 
 5. Recomendacion automatica desde Google Sheets cuando exista una coincidencia.
 6. Datos del cliente.
 7. Resumen listo para enviar o copiar.
+
+## Voz y microfono
+
+El widget incluye botones de voz en el encabezado:
+
+- Activar voz: el agente lee sus respuestas en voz alta.
+- Microfono: permite dictar la descripcion del problema cuando el formulario esta abierto.
+
+Estas funciones usan capacidades del navegador. En Chrome y Edge suelen funcionar mejor; el microfono requiere permiso del usuario y una pagina HTTPS o `localhost`.

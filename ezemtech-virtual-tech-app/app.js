@@ -18,7 +18,9 @@ const state = {
   language: "es",
   device: "computers",
   lastTicket: "",
-  lastClassification: "computers"
+  lastClassification: "computers",
+  voiceEnabled: false,
+  recognition: null
 };
 
 const content = {
@@ -31,6 +33,12 @@ const content = {
     copied: "Ticket copiado.",
     notifyTech: "Notificar tecnico",
     notified: "Notificacion preparada para el tecnico.",
+    voiceOn: "Activar voz",
+    voiceOff: "Pausar voz",
+    listening: "Escuchando...",
+    dictate: "Dictar problema",
+    speechUnsupported: "La voz no esta disponible en este navegador.",
+    micUnsupported: "El microfono no esta disponible en este navegador.",
     welcome:
       "Hola, soy el Tecnico Virtual de EZEMTECH. Elige una categoria, describe el problema y te preparo un diagnostico inicial con proximos pasos.",
     ticketTitle: "Ticket EZEMTECH",
@@ -64,6 +72,12 @@ const content = {
     copied: "Ticket copied.",
     notifyTech: "Notify technician",
     notified: "Technician notification prepared.",
+    voiceOn: "Turn voice on",
+    voiceOff: "Pause voice",
+    listening: "Listening...",
+    dictate: "Dictate issue",
+    speechUnsupported: "Voice is not available in this browser.",
+    micUnsupported: "Microphone is not available in this browser.",
     welcome:
       "Hi, I am the EZEMTECH Virtual Tech. Choose a category, describe the issue, and I will prepare an initial diagnostic with next steps.",
     ticketTitle: "EZEMTECH Ticket",
@@ -94,6 +108,8 @@ const conversation = document.querySelector("#conversation");
 const form = document.querySelector("#diagnosticForm");
 const installButton = document.querySelector(".install-button");
 const copyTicketButton = document.querySelector("#copyTicket");
+const toggleVoiceButton = document.querySelector("#toggleVoice");
+const dictateIssueButton = document.querySelector("#dictateIssue");
 const notifyButton = document.createElement("button");
 const whatsappButton = document.createElement("button");
 let installPrompt = null;
@@ -108,6 +124,7 @@ function addMessage(text, type = "bot") {
   message.textContent = text;
   conversation.appendChild(message);
   conversation.scrollTop = conversation.scrollHeight;
+  if (type === "bot") speak(text);
 }
 
 function setLanguage(language) {
@@ -121,8 +138,91 @@ function setLanguage(language) {
   document.querySelector(".primary-button").textContent = t("submit");
   installButton.textContent = t("install");
   notifyButton.textContent = t("notifyTech");
+  updateVoiceControls();
   conversation.innerHTML = "";
   addMessage(t("welcome"));
+}
+
+function getSpeechLanguage() {
+  return state.language === "es" ? "es-US" : "en-US";
+}
+
+function speak(text) {
+  if (!state.voiceEnabled || !("speechSynthesis" in window)) return;
+
+  const cleanText = String(text || "").replace(/\s+/g, " ").trim();
+  if (!cleanText) return;
+
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(cleanText.slice(0, 700));
+  utterance.lang = getSpeechLanguage();
+  utterance.rate = 0.95;
+  window.speechSynthesis.speak(utterance);
+}
+
+function updateVoiceControls() {
+  toggleVoiceButton.title = state.voiceEnabled ? t("voiceOff") : t("voiceOn");
+  toggleVoiceButton.setAttribute("aria-label", state.voiceEnabled ? t("voiceOff") : t("voiceOn"));
+  toggleVoiceButton.setAttribute("aria-pressed", String(state.voiceEnabled));
+  toggleVoiceButton.classList.toggle("active", state.voiceEnabled);
+  dictateIssueButton.title = t("dictate");
+  dictateIssueButton.setAttribute("aria-label", t("dictate"));
+}
+
+function toggleVoice() {
+  if (!("speechSynthesis" in window)) {
+    addMessage(t("speechUnsupported"));
+    return;
+  }
+
+  state.voiceEnabled = !state.voiceEnabled;
+  updateVoiceControls();
+
+  if (state.voiceEnabled) {
+    addMessage(t("voiceOn"));
+  } else {
+    window.speechSynthesis.cancel();
+    addMessage(t("voiceOff"));
+  }
+}
+
+function startDictation() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    addMessage(t("micUnsupported"));
+    return;
+  }
+
+  if (state.recognition) {
+    state.recognition.stop();
+    return;
+  }
+
+  const issueField = form.querySelector('textarea[name="issue"]');
+  const recognition = new SpeechRecognition();
+  state.recognition = recognition;
+  recognition.lang = getSpeechLanguage();
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  dictateIssueButton.setAttribute("aria-pressed", "true");
+  dictateIssueButton.classList.add("active");
+  addMessage(t("listening"));
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    issueField.value = `${issueField.value} ${transcript}`.trim();
+    issueField.focus();
+    addMessage(transcript, "user");
+  };
+
+  recognition.onerror = () => addMessage(t("micUnsupported"));
+  recognition.onend = () => {
+    state.recognition = null;
+    dictateIssueButton.setAttribute("aria-pressed", "false");
+    dictateIssueButton.classList.remove("active");
+  };
+
+  recognition.start();
 }
 
 function setDevice(device) {
@@ -235,6 +335,7 @@ form.addEventListener("submit", async (event) => {
   answer.innerHTML = `<strong>${content[state.language].ticketTitle}</strong>${state.lastTicket.replace(/\n/g, "<br>")}`;
   conversation.appendChild(answer);
   conversation.scrollTop = conversation.scrollHeight;
+  speak(`${content[state.language].ticketTitle}. ${content[state.language].recommendations[state.device]}`);
   await postWebhook({
     language: state.language,
     category: state.device,
@@ -259,6 +360,9 @@ copyTicketButton.addEventListener("click", async () => {
   await navigator.clipboard.writeText(state.lastTicket);
   addMessage(t("copied"));
 });
+
+toggleVoiceButton.addEventListener("click", toggleVoice);
+dictateIssueButton.addEventListener("click", startDictation);
 
 notifyButton.className = "action-button";
 notifyButton.type = "button";
@@ -290,4 +394,5 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./service-worker.js");
 }
 
+updateVoiceControls();
 setLanguage("es");

@@ -89,6 +89,13 @@
   color: #c9d6eb;
 }
 
+.ez-agent-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ez-agent-icon-button,
 .ez-agent-close {
   width: 34px;
   height: 34px;
@@ -96,9 +103,27 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
+  cursor: pointer;
+}
+
+.ez-agent-icon-button {
+  display: grid;
+  place-items: center;
+}
+
+.ez-agent-icon-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.ez-agent-icon-button.active {
+  background: #fff;
+  color: #10213d;
+}
+
+.ez-agent-close {
   font-size: 22px;
   line-height: 1;
-  cursor: pointer;
 }
 
 .ez-agent-messages {
