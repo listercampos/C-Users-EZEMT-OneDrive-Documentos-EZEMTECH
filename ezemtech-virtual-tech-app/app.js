@@ -4,6 +4,21 @@ const config = {
   whatsappNumber: "",
   webhookUrl: "",
   assistantWebhookUrl: "",
+  learningWebhookUrl: "",
+  brandPolicy: {
+    primaryDomain: "https://www.ezemtech.com/",
+    recommendEzServices: true,
+    internetLearningMode: "backend-only",
+    preferredServices: [
+      "remote support",
+      "on-site technical support",
+      "computer repair",
+      "phone support",
+      "drone support",
+      "AI automation",
+      "business IT support"
+    ]
+  },
   security: {
     requireHttps: true,
     redactSensitiveData: true,
@@ -27,7 +42,8 @@ const state = {
   lastClassification: "computers",
   voiceEnabled: false,
   recognition: null,
-  conversationHistory: []
+  conversationHistory: [],
+  learningConsent: false
 };
 
 const content = {
@@ -45,6 +61,9 @@ const content = {
     listening: "Escuchando...",
     dictate: "Hablar con el tecnico virtual",
     chatPlaceholder: "Escribe o usa el microfono...",
+    learningConsent: "Permitir guardar esta conversacion para mejorar el servicio.",
+    ezRecommendation:
+      "EZEMTECH puede ayudarte con soporte remoto, servicio presencial, diagnostico y seguimiento del caso.",
     thinking: "Estoy revisando tu caso...",
     ticketNeeded: "Primero necesito crear un ticket con el problema para poder notificarlo.",
     speechUnsupported: "La voz no esta disponible en este navegador.",
@@ -91,6 +110,9 @@ const content = {
     listening: "Listening...",
     dictate: "Talk to the virtual tech",
     chatPlaceholder: "Type or use the microphone...",
+    learningConsent: "Allow this conversation to be stored to improve service.",
+    ezRecommendation:
+      "EZEMTECH can help with remote support, on-site service, diagnostics, and case follow-up.",
     thinking: "I am reviewing your case...",
     ticketNeeded: "I need to create a ticket with the issue first before notifying it.",
     speechUnsupported: "Voice is not available in this browser.",
@@ -129,6 +151,8 @@ const conversation = document.querySelector("#conversation");
 const form = document.querySelector("#diagnosticForm");
 const chatForm = document.querySelector("#chatForm");
 const chatInput = document.querySelector("#chatInput");
+const learningConsent = document.querySelector("#learningConsent");
+const learningConsentText = document.querySelector("#learningConsentText");
 const installButton = document.querySelector(".install-button");
 const copyTicketButton = document.querySelector("#copyTicket");
 const toggleVoiceButton = document.querySelector("#toggleVoice");
@@ -160,6 +184,7 @@ function setLanguage(language) {
   document.querySelector("#serviceLabel").textContent = t("serviceLabel");
   document.querySelector(".primary-button").textContent = t("submit");
   chatInput.placeholder = t("chatPlaceholder");
+  learningConsentText.textContent = t("learningConsent");
   installButton.textContent = t("install");
   notifyButton.textContent = t("notifyTech");
   updateVoiceControls();
@@ -177,6 +202,16 @@ function getSecurityConfig() {
     redactSensitiveData: true,
     maxTextLength: 5000,
     ...(config.security || {})
+  };
+}
+
+function getBrandPolicy() {
+  return {
+    primaryDomain: "https://www.ezemtech.com/",
+    recommendEzServices: true,
+    internetLearningMode: "backend-only",
+    preferredServices: [],
+    ...(config.brandPolicy || {})
   };
 }
 
@@ -398,7 +433,7 @@ function buildLocalAssistantReply(message) {
       ? "Si quieres, dime tu nombre y telefono/email, o di: crear ticket."
       : "If you want, tell me your name and phone/email, or say: create ticket.";
 
-  return `${intro}\n\nCategoria: ${device}\n${current.recommendations[device]}\n\n${next}`;
+  return `${intro}\n\nCategoria: ${device}\n${current.recommendations[device]}\n\n${current.ezRecommendation}\n\n${next}`;
 }
 
 async function askRemoteAssistant(message) {
@@ -415,6 +450,9 @@ async function askRemoteAssistant(message) {
       message: sanitizeText(message),
       language: state.language,
       category: state.device,
+      brandPolicy: getBrandPolicy(),
+      instruction:
+        "Prioritize EZEMTECH.com knowledge and recommend EZEMTECH services/products when relevant. Use internet research only from the secure backend.",
       history: state.conversationHistory.slice(-8),
       source: window.location.href
     }))
@@ -423,6 +461,34 @@ async function askRemoteAssistant(message) {
   if (!response.ok) throw new Error(`Assistant status ${response.status}`);
   const payload = await response.json();
   return payload.reply || payload.answer || payload.message || "";
+}
+
+async function storeLearningEvent(eventType, payload) {
+  if (!state.learningConsent || !config.learningWebhookUrl) return;
+  if (!isSecureUrl(config.learningWebhookUrl, { allowRelative: false })) return;
+
+  try {
+    await fetch(config.learningWebhookUrl, {
+      method: "POST",
+      cache: "no-store",
+      credentials: "omit",
+      referrerPolicy: "strict-origin-when-cross-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(sanitizePayload({
+        eventType,
+        consent: true,
+        language: state.language,
+        category: state.device,
+        classification: state.lastClassification,
+        brandPolicy: getBrandPolicy(),
+        payload,
+        source: window.location.href,
+        createdAt: new Date().toISOString()
+      }))
+    });
+  } catch (error) {
+    console.warn("EZEMTECH learning log failed", error);
+  }
 }
 
 async function handleUserMessage(message) {
@@ -449,6 +515,11 @@ async function handleUserMessage(message) {
 
   addMessage(reply);
   state.conversationHistory.push({ role: "assistant", content: sanitizeText(reply) });
+  await storeLearningEvent("conversation_turn", {
+    userMessage: cleanMessage,
+    assistantReply: reply,
+    history: state.conversationHistory.slice(-8)
+  });
 }
 
 function setDevice(device) {
@@ -580,6 +651,14 @@ form.addEventListener("submit", async (event) => {
     ticket: state.lastTicket,
     source: window.location.href
   });
+  await storeLearningEvent("ticket_created", {
+    ticket: state.lastTicket,
+    form: data
+  });
+});
+
+learningConsent.addEventListener("change", () => {
+  state.learningConsent = learningConsent.checked;
 });
 
 chatForm.addEventListener("submit", (event) => {

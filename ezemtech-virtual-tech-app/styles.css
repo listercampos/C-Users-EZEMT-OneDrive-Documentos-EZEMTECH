@@ -299,6 +299,21 @@ h1 {
   font-weight: 800;
 }
 
+.learning-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 0 12px 12px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.learning-consent input {
+  margin-top: 2px;
+  flex: 0 0 auto;
+}
+
 .diagnostic-form {
   display: grid;
   gap: 13px;

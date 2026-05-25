@@ -4,6 +4,21 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
   whatsappNumber: "16468422766",
   webhookUrl: "",
   assistantWebhookUrl: "",
+  learningWebhookUrl: "",
+  brandPolicy: {
+    primaryDomain: "https://www.ezemtech.com/",
+    recommendEzServices: true,
+    internetLearningMode: "backend-only",
+    preferredServices: [
+      "remote support",
+      "on-site technical support",
+      "computer repair",
+      "phone support",
+      "drone support",
+      "AI automation",
+      "business IT support"
+    ]
+  },
   security: {
     requireHttps: true,
     redactSensitiveData: true,

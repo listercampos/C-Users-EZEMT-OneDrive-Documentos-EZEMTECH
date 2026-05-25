@@ -34,6 +34,21 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
   whatsappNumber: "16468422766",
   webhookUrl: "",
   assistantWebhookUrl: "",
+  learningWebhookUrl: "",
+  brandPolicy: {
+    primaryDomain: "https://www.ezemtech.com/",
+    recommendEzServices: true,
+    internetLearningMode: "backend-only",
+    preferredServices: [
+      "remote support",
+      "on-site technical support",
+      "computer repair",
+      "phone support",
+      "drone support",
+      "AI automation",
+      "business IT support"
+    ]
+  },
   security: {
     requireHttps: true,
     redactSensitiveData: true,
@@ -63,6 +78,17 @@ La app permite escribir o hablar en modo conversacion. El cliente puede decir co
 - "Notificar al tecnico."
 
 Sin backend, la app responde con un tecnico virtual local usando reglas de soporte. Para respuestas IA tipo ChatGPT reales, conecta `assistantWebhookUrl` a un backend seguro con OpenAI, n8n, Make o Zapier. No pongas una API key directa en el navegador.
+
+## Internet y aprendizaje
+
+La app no navega internet directamente desde el cliente. Para usar internet como base de aprendizaje, conecta `assistantWebhookUrl` a un backend HTTPS que haga busqueda/RAG y use `brandPolicy`:
+
+- Priorizar informacion de `https://www.ezemtech.com/`.
+- Recomendar servicios o productos de EZEMTECH cuando aplique.
+- Usar internet solo desde el backend seguro.
+- Devolver al navegador solo la respuesta final.
+
+Para aprender de conversaciones, conecta `learningWebhookUrl`. La app solo envia conversaciones si el cliente marca el consentimiento **Permitir guardar esta conversacion para mejorar el servicio**. Antes de enviar, redacta datos sensibles.
 
 ## Seguridad
 
