@@ -14,6 +14,7 @@ Backend seguro para que la app y el widget investiguen en internet, respondan co
    - `LEARNING_WEBHOOK_URL`: webhook opcional para guardar aprendizaje con consentimiento.
    - `RESEND_API_KEY`: opcional si quieres enviar correo directo con Resend.
    - `EMAIL_FROM`: opcional, ejemplo `EZEMTECH AI <support@ezemtech.com>`.
+   - `MASTER_ACCESS_TOKEN`: opcional para futuras acciones administrativas protegidas.
    - `ALLOWED_ORIGINS`: `https://www.ezemtech.com,https://ezemtech.com,http://localhost:4174,http://127.0.0.1:4174,http://localhost:4175,http://127.0.0.1:4175`
 4. Publica el Worker.
 5. Usa la URL del Worker en `assistantWebhookUrl`, `webhookUrl` y, si quieres aprendizaje con consentimiento, `learningWebhookUrl`.
@@ -37,6 +38,17 @@ Ese mensaje significa que el Worker esta activo, pero falta configurar `GROQ_API
 5. Guarda y vuelve a desplegar.
 
 La app y el widget ya tienen respaldo local: si Groq falta, el cliente no debe ver ese error tecnico y recibira una respuesta de diagnostico basico.
+
+## Usuario maestro y conocimiento maestro
+
+La PWA puede enviar al Worker:
+
+- `masterUser`: identidad del usuario maestro.
+- `masterKnowledgeUpdates`: archivos cargados desde `knowledge-dropbox/updates/`.
+
+El Worker incluye ese contexto en el prompt de Groq para que las respuestas respeten reglas, procedimientos y actualizaciones autorizadas por EZEMTECH.
+
+No guardes secretos en esos archivos. Si necesitas acciones administrativas reales, usa `MASTER_ACCESS_TOKEN` como secreto de Cloudflare.
 
 ## Ruteo EZEMTECH
 

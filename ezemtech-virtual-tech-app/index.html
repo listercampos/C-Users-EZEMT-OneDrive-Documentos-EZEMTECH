@@ -11,7 +11,7 @@
     />
     <title>EZEMTECH AI Tech</title>
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./styles.css?v=20260525-5" />
+    <link rel="stylesheet" href="./styles.css?v=20260525-7" />
   </head>
   <body>
     <main class="app-shell">
@@ -149,6 +149,34 @@
         </div>
       </section>
 
+      <section class="master-area" id="masterControl" aria-label="Usuario maestro y actualizaciones">
+        <div class="master-copy">
+          <p class="eyebrow">Usuario maestro</p>
+          <h2>Control maestro EZEMTECH</h2>
+          <p>
+            El usuario maestro administra conocimiento, politicas y actualizaciones. Las claves
+            sensibles siguen viviendo solo en Cloudflare Secrets.
+          </p>
+        </div>
+        <div class="master-grid">
+          <div class="master-card">
+            <strong>Lister Campos</strong>
+            <span>Rol: master</span>
+            <code>listercampos@gmail.com</code>
+          </div>
+          <div class="master-card">
+            <strong>Carpeta de aprendizaje</strong>
+            <span>Sube notas, reglas y cambios versionados aqui.</span>
+            <code>knowledge-dropbox/updates/</code>
+          </div>
+          <div class="master-card">
+            <strong>Archivo activo</strong>
+            <span>Ejemplo listo para editar o duplicar.</span>
+            <code>actualizacion 2.md</code>
+          </div>
+        </div>
+      </section>
+
       <section class="ticket-area" aria-label="Crear ticket para tecnicos">
         <div class="ticket-copy">
           <p class="eyebrow">Ticket seguro</p>
@@ -200,11 +228,12 @@
         <a class="action-button" href="https://www.ezemtech.com/book-online" target="_blank" rel="noopener">Reservar cita</a>
         <a class="action-button" href="https://www.ezemtech.com/" target="_blank" rel="noopener">EZEMTECH.com</a>
         <a class="action-button" href="#apiSetup">Conectar APIs</a>
+        <a class="action-button" href="#masterControl">Usuario maestro</a>
         <button class="action-button" type="button" id="copyTicket">Copiar ticket</button>
       </section>
     </main>
 
-    <script src="./config.js?v=20260525-5"></script>
-    <script src="./app.js?v=20260525-5"></script>
+    <script src="./config.js?v=20260525-7"></script>
+    <script src="./app.js?v=20260525-7"></script>
   </body>
 </html>

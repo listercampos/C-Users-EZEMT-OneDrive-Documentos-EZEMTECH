@@ -5,6 +5,13 @@ const config = {
   webhookUrl: "",
   assistantWebhookUrl: "",
   learningWebhookUrl: "",
+  localUpdateManifestUrl: "",
+  masterUser: {
+    name: "EZEMTECH Master",
+    email: "listercampos@gmail.com",
+    role: "master",
+    accessMode: "backend-secret-only"
+  },
   brandPolicy: {
     companyName: "EZEMTECH LLC",
     primaryDomain: "https://www.ezemtech.com/",
@@ -53,7 +60,8 @@ const state = {
   voiceEnabled: false,
   recognition: null,
   conversationHistory: [],
-  learningConsent: false
+  learningConsent: false,
+  masterKnowledge: []
 };
 
 const content = {
@@ -260,6 +268,10 @@ function isSecureUrl(url, options = {}) {
   }
 }
 
+function resolveRelativeUrl(url, baseUrl = window.location.href) {
+  return new URL(url, baseUrl).toString();
+}
+
 function limitText(value) {
   const maxLength = getSecurityConfig().maxTextLength;
   const text = String(value || "");
@@ -289,6 +301,65 @@ function sanitizePayload(payload) {
   }
 
   return payload;
+}
+
+async function loadMasterKnowledge() {
+  if (!config.localUpdateManifestUrl || !isSecureUrl(config.localUpdateManifestUrl, { allowRelative: true })) return;
+
+  try {
+    const manifestUrl = resolveRelativeUrl(config.localUpdateManifestUrl);
+    const response = await fetch(manifestUrl, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Master manifest status ${response.status}`);
+
+    const manifest = await response.json();
+    const updates = Array.isArray(manifest.updates) ? manifest.updates : [];
+    const loaded = [];
+
+    for (const update of updates.filter((item) => item && item.enabled !== false).slice(0, 12)) {
+      if (!update.file) continue;
+      const fileUrl = resolveRelativeUrl(update.file, manifestUrl);
+      if (!isSecureUrl(fileUrl, { allowRelative: false })) continue;
+
+      const fileResponse = await fetch(fileUrl, { cache: "no-store" });
+      if (!fileResponse.ok) continue;
+      const content = sanitizeText(await fileResponse.text());
+      loaded.push({
+        id: sanitizeText(update.id || update.file, 120),
+        version: sanitizeText(update.version || "", 80),
+        title: sanitizeText(update.title || update.file, 160),
+        keywords: Array.isArray(update.keywords) ? update.keywords.map((keyword) => sanitizeText(keyword, 80)) : [],
+        summary: sanitizeText(update.summary || content.slice(0, 500), 700),
+        source: sanitizeText(update.file, 200),
+        content
+      });
+    }
+
+    state.masterKnowledge = loaded;
+  } catch (error) {
+    console.warn("EZEMTECH master knowledge failed", error);
+  }
+}
+
+function findMasterKnowledge(message) {
+  const text = normalize(message);
+  return state.masterKnowledge.find((update) => {
+    const haystack = normalize(`${update.title} ${update.summary} ${update.content}`);
+    const keywords = update.keywords.map(normalize).filter(Boolean);
+    return keywords.some((keyword) => text.includes(keyword) || haystack.includes(keyword)) || haystack.includes(text);
+  });
+}
+
+function getMasterKnowledgeContext(message) {
+  const matched = findMasterKnowledge(message);
+  const updates = matched ? [matched, ...state.masterKnowledge.filter((update) => update.id !== matched.id)] : state.masterKnowledge;
+  return updates.slice(0, 4).map((update) => ({
+    id: update.id,
+    version: update.version,
+    title: update.title,
+    summary: update.summary,
+    source: update.source,
+    content: update.content.slice(0, 1600)
+  }));
 }
 
 function isAssistantConfigReply(reply) {
@@ -455,6 +526,7 @@ function handleLocalCommand(message) {
 function buildLocalAssistantReply(message) {
   const current = content[state.language];
   const device = inferDeviceFromMessage(message);
+  const masterUpdate = findMasterKnowledge(message);
   setDevice(device);
   setIssueFromMessage(message);
 
@@ -466,8 +538,11 @@ function buildLocalAssistantReply(message) {
     state.language === "es"
       ? "Si quieres, dime tu nombre y telefono/email, o di: crear ticket."
       : "If you want, tell me your name and phone/email, or say: create ticket.";
+  const updateNote = masterUpdate
+    ? `\n\nActualizacion maestro (${masterUpdate.title}):\n${masterUpdate.summary}`
+    : "";
 
-  return `${intro}\n\nCategoria: ${device}\n${current.recommendations[device]}\n\n${current.ezRecommendation}\n\n${next}`;
+  return `${intro}\n\nCategoria: ${device}\n${current.recommendations[device]}${updateNote}\n\n${current.ezRecommendation}\n\n${next}`;
 }
 
 async function askRemoteAssistant(message) {
@@ -484,9 +559,11 @@ async function askRemoteAssistant(message) {
       message: sanitizeText(message),
       language: state.language,
       category: state.device,
+      masterUser: sanitizePayload(config.masterUser || {}),
+      masterKnowledgeUpdates: getMasterKnowledgeContext(message),
       brandPolicy: getBrandPolicy(),
       instruction:
-        "Prioritize EZEMTECH.com knowledge and recommend EZEMTECH services/products when relevant. Use internet research only from the secure backend.",
+        "Prioritize EZEMTECH.com and masterKnowledgeUpdates. Recommend EZEMTECH services/products when relevant. Use internet research only from the secure backend.",
       history: state.conversationHistory.slice(-8),
       source: window.location.href
     }))
@@ -771,6 +848,8 @@ installButton.addEventListener("click", async () => {
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./service-worker.js");
 }
+
+loadMasterKnowledge();
 
 window.EZEMTECH_VIRTUAL_TECH = {
   sendMessage: handleUserMessage,

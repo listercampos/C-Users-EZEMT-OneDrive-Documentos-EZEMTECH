@@ -1,14 +1,17 @@
-const CACHE_NAME = "ezemtech-virtual-tech-v10";
+const CACHE_NAME = "ezemtech-virtual-tech-v12";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./config.js?v=20260525-5",
-  "./styles.css?v=20260525-5",
-  "./app.js?v=20260525-5",
+  "./config.js?v=20260525-7",
+  "./styles.css?v=20260525-7",
+  "./app.js?v=20260525-7",
   "./manifest.webmanifest",
   "./icons/icon.svg",
   "./assets/ezemtech-ezt-logo.png",
-  "./assets/ezemtech-wide-logo.png"
+  "./assets/ezemtech-wide-logo.png",
+  "./knowledge-dropbox/updates/index.json",
+  "./knowledge-dropbox/updates/README.md",
+  "./knowledge-dropbox/updates/actualizacion%202.md"
 ];
 
 self.addEventListener("install", (event) => {

@@ -44,6 +44,13 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
   webhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
   assistantWebhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
   learningWebhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
+  localUpdateManifestUrl: "./knowledge-dropbox/updates/index.json",
+  masterUser: {
+    name: "Lister Campos",
+    email: "listercampos@gmail.com",
+    role: "master",
+    accessMode: "backend-secret-only"
+  },
   brandPolicy: {
     companyName: "EZEMTECH LLC",
     primaryDomain: "https://www.ezemtech.com/",
@@ -91,6 +98,37 @@ Ruteo actual:
 - Ventas, productos y accesorios: `sales@ezemtech.com,listercampos@gmail.com`.
 - Todo lo demas: `info@ezemtech.com,listercampos@gmail.com`.
 - WhatsApp, mensajes y llamadas: `+1 646 842 2766`.
+
+## Usuario maestro y actualizaciones
+
+La app incluye un usuario maestro para control operativo:
+
+- Nombre: `Lister Campos`
+- Email: `listercampos@gmail.com`
+- Rol: `master`
+
+El usuario maestro no se autentica con una clave guardada en el navegador. Si luego necesitas acciones administrativas reales, usa un secreto de backend en Cloudflare, por ejemplo `MASTER_ACCESS_TOKEN`.
+
+Carpeta de aprendizaje maestro:
+
+```text
+ezemtech-virtual-tech-app/knowledge-dropbox/updates/
+```
+
+Archivo inicial:
+
+```text
+actualizacion 2.md
+```
+
+Para educar o actualizar el agente:
+
+1. Edita `actualizacion 2.md` o crea otro archivo, por ejemplo `actualizacion 3.md`.
+2. Si creas uno nuevo, agregalo a `index.json`.
+3. Sube los cambios al hosting/GitHub.
+4. Recarga la app.
+
+La app carga esos archivos como contexto maestro, los usa en respuestas locales y los envia al Worker como `masterKnowledgeUpdates` cuando hay IA real.
 
 ## Modo conversacional tipo ChatGPT
 

@@ -303,7 +303,7 @@ async function searchInternet(message, serpApiKey, language) {
   return { summary, sources };
 }
 
-async function askGroq({ message, language, category, history, brandPolicy, searchContext, routeEmail, groqApiKey, model }) {
+async function askGroq({ message, language, category, history, brandPolicy, masterUser, masterKnowledgeUpdates, searchContext, routeEmail, groqApiKey, model }) {
   if (!groqApiKey) {
     return "";
   }
@@ -315,6 +315,7 @@ async function askGroq({ message, language, category, history, brandPolicy, sear
     "Usa tono profesional, claro, didactico y paso a paso.",
     "Usa la informacion web solo como apoyo; no inventes precios, garantia, inventario ni disponibilidad.",
     "Cuando aplique, recomienda servicios, productos o reservas de EZEMTECH.com sin sonar forzado.",
+    "Respeta el conocimiento maestro enviado por el usuario maestro cuando no contradiga seguridad ni privacidad.",
     "No pidas contrasenas, codigos 2FA, tarjetas ni datos sensibles. Si el cliente los comparte, indica que deben protegerse.",
     `Ruteo interno: ventas/productos/accesorios => ${ROUTES.sales}; todo lo demas => ${ROUTES.default}; WhatsApp/llamadas => +1 646 842 2766.`,
     `La categoria detectada es ${category}. El correo destino sugerido es ${routeEmail}.`
@@ -328,6 +329,8 @@ async function askGroq({ message, language, category, history, brandPolicy, sear
   const userPrompt = [
     `Pregunta del cliente: ${sanitizeText(message)}`,
     `Politica de marca/configuracion: ${JSON.stringify(sanitizePayload(brandPolicy || {}))}`,
+    `Usuario maestro: ${JSON.stringify(sanitizePayload(masterUser || {}))}`,
+    `Actualizaciones maestras cargadas:\n${JSON.stringify(sanitizePayload(masterKnowledgeUpdates || []))}`,
     `Resultados de busqueda web:\n${searchContext}`,
     "Entrega una respuesta accionable. Si conviene seguimiento, sugiere crear ticket, reservar en EZEMTECH.com o contactar por WhatsApp."
   ].join("\n\n");
@@ -386,6 +389,8 @@ async function handleChat(request, env, body) {
     category: routeType,
     history: sanitizePayload(body.history || []),
     brandPolicy: sanitizePayload(body.brandPolicy || {}),
+    masterUser: sanitizePayload(body.masterUser || {}),
+    masterKnowledgeUpdates: sanitizePayload(body.masterKnowledgeUpdates || []),
     searchContext: search.summary,
     routeEmail,
     groqApiKey: env.GROQ_API_KEY,

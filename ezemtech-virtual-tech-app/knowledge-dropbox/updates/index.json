@@ -1,0 +1,28 @@
+{
+  "owner": "EZEMTECH LLC",
+  "masterUser": "listercampos@gmail.com",
+  "instructions": "Agrega archivos .md o .txt aqui y registralos en updates para que la app los cargue como conocimiento maestro.",
+  "updates": [
+    {
+      "id": "actualizacion-2",
+      "version": "2",
+      "title": "Actualizacion 2 - Politicas maestras EZEMTECH",
+      "file": "./actualizacion 2.md",
+      "enabled": true,
+      "keywords": [
+        "actualizacion",
+        "actualizacion 2",
+        "usuario maestro",
+        "ezemtech",
+        "politica",
+        "soporte",
+        "ventas",
+        "drones",
+        "computadoras",
+        "telefonos",
+        "ia"
+      ],
+      "summary": "Reglas maestras para que el tecnico virtual priorice EZEMTECH, proteja datos del cliente y enrute ventas/productos/accesorios a sales."
+    }
+  ]
+}

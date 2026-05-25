@@ -5,6 +5,13 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
   webhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
   assistantWebhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
   learningWebhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
+  localUpdateManifestUrl: "./knowledge-dropbox/updates/index.json",
+  masterUser: {
+    name: "Lister Campos",
+    email: "listercampos@gmail.com",
+    role: "master",
+    accessMode: "backend-secret-only"
+  },
   brandPolicy: {
     companyName: "EZEMTECH LLC",
     primaryDomain: "https://www.ezemtech.com/",
