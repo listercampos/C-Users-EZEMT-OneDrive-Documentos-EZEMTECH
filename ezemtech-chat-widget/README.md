@@ -24,18 +24,18 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
   window.EZEMTECH_AGENT_CONFIG = {
     businessName: "EZEMTECH",
     bookingUrl: "https://www.ezemtech.com/book-online",
-    contactEmail: "ezemtech@gmail.com",
+    contactEmail: "ezemtech@gmail.com,listercampos@gmail.com",
     whatsappNumber: "TU_NUMERO_WHATSAPP_CON_CODIGO_PAIS",
     webhookUrl: "",
     knowledgeBaseUrl: "URL_CSV_PUBLICA_DE_GOOGLE_SHEETS",
     localKnowledgeBaseUrl: "URL_PUBLICA/local-knowledge.csv",
     technicianEmails: {
-      computers: "ezemtech@gmail.com",
-      phones: "ezemtech@gmail.com",
-      drones: "ezemtech@gmail.com",
-      ai: "ezemtech@gmail.com",
-      network: "ezemtech@gmail.com",
-      general: "ezemtech@gmail.com"
+      computers: "ezemtech@gmail.com,listercampos@gmail.com",
+      phones: "ezemtech@gmail.com,listercampos@gmail.com",
+      drones: "ezemtech@gmail.com,listercampos@gmail.com",
+      ai: "ezemtech@gmail.com,listercampos@gmail.com",
+      network: "ezemtech@gmail.com,listercampos@gmail.com",
+      general: "ezemtech@gmail.com,listercampos@gmail.com"
     }
   };
 </script>
