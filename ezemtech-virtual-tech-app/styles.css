@@ -228,11 +228,17 @@ h1 {
   gap: 16px;
 }
 
-.conversation,
+.chat-column,
 .diagnostic-form {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
+}
+
+.chat-column {
+  display: grid;
+  grid-template-rows: minmax(360px, 1fr) auto;
+  overflow: hidden;
 }
 
 .conversation {
@@ -259,6 +265,34 @@ h1 {
 .message strong {
   display: block;
   margin-bottom: 5px;
+}
+
+.chat-composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.chat-composer input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 12px;
+  color: var(--ink);
+}
+
+.composer-button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 6px;
+  padding: 0 14px;
+  background: var(--blue);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 800;
 }
 
 .diagnostic-form {
@@ -335,7 +369,8 @@ h1 {
   }
 
   .toolbar,
-  .form-row {
+  .form-row,
+  .chat-composer {
     grid-template-columns: 1fr;
   }
 

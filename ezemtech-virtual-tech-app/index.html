@@ -74,7 +74,13 @@
       </section>
 
       <section class="diagnostic-panel">
-        <div class="conversation" id="conversation" aria-live="polite"></div>
+        <div class="chat-column">
+          <div class="conversation" id="conversation" aria-live="polite"></div>
+          <form class="chat-composer" id="chatForm">
+            <input id="chatInput" name="message" autocomplete="off" placeholder="Escribe o usa el microfono..." />
+            <button class="composer-button" type="submit">Enviar</button>
+          </form>
+        </div>
 
         <form class="diagnostic-form" id="diagnosticForm">
           <label>
@@ -126,6 +132,7 @@
         websiteUrl: "https://www.ezemtech.com/",
         whatsappNumber: "16468422766",
         webhookUrl: "",
+        assistantWebhookUrl: "",
         technicianEmails: {
           computers: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
           phones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",

@@ -34,6 +34,7 @@ Configura los correos en `index.html`:
     websiteUrl: "https://www.ezemtech.com/",
     whatsappNumber: "16468422766",
     webhookUrl: "",
+    assistantWebhookUrl: "",
     technicianEmails: {
       computers: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
       phones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
@@ -47,6 +48,18 @@ Configura los correos en `index.html`:
 ```
 
 La app clasifica el caso y usa el correo correcto en **Notificar tecnico**. Si agregas `webhookUrl`, tambien envia los datos a Zapier, Make o n8n para mandar el correo automaticamente.
+
+## Modo conversacional tipo ChatGPT
+
+La app permite escribir o hablar en modo conversacion. El cliente puede decir cosas como:
+
+- "Mi laptop esta lenta y se apaga."
+- "Quiero crear un ticket."
+- "Abrir cita."
+- "Enviar por WhatsApp."
+- "Notificar al tecnico."
+
+Sin backend, la app responde con un tecnico virtual local usando reglas de soporte. Para respuestas IA tipo ChatGPT reales, conecta `assistantWebhookUrl` a un backend seguro con OpenAI, n8n, Make o Zapier. No pongas una API key directa en el navegador.
 
 ## Incluye
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "ezemtech-virtual-tech-v3";
+const CACHE_NAME = "ezemtech-virtual-tech-v4";
 const APP_SHELL = [
   "./",
   "./index.html",
