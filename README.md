@@ -18,7 +18,12 @@ generar un resumen listo para el equipo tecnico.
 - Resumen listo para email, WhatsApp, booking o webhook.
 - Conexion opcional a Google Sheets como base de conocimiento bilingue.
 - App instalable para diagnostico de computadoras, drones, telefonos e IA.
+- Redaccion automatica de datos sensibles y bloqueo de endpoints no HTTPS.
 
 ## Instalacion
 
 Lee las instrucciones en `ezemtech-chat-widget/README.md`.
+
+## Seguridad
+
+Lee `SECURITY.md` antes de conectar webhooks, IA o automatizaciones con datos de clientes.

@@ -5,6 +5,7 @@ Widget rapido para atender clientes de EZEMTECH desde la web. Funciona sin servi
 ## Archivos
 
 - `index.html`: demo local del chat.
+- `config.js`: configuracion del demo y datos de contacto.
 - `styles.css`: estilos del widget.
 - `widget.js`: logica del agente.
 
@@ -14,12 +15,19 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
 
 ## Como instalarlo en Wix / EZEMTECH.com
 
-1. Sube `styles.css` y `widget.js` a un lugar publico, por ejemplo al hosting de archivos que uses o a tu servidor.
+1. Sube `styles.css`, `widget.js` y opcionalmente `config.js` a un lugar publico, por ejemplo al hosting de archivos que uses o a tu servidor.
 2. En Wix, entra a **Settings > Custom Code**.
 3. Agrega este bloque antes de cerrar `</body>`:
 
 ```html
 <link rel="stylesheet" href="URL_PUBLICA/styles.css">
+<script src="URL_PUBLICA/config.js"></script>
+<script src="URL_PUBLICA/widget.js"></script>
+```
+
+Si necesitas configurar directo en Wix, puedes usar este bloque antes de `widget.js`:
+
+```html
 <script>
   window.EZEMTECH_AGENT_CONFIG = {
     businessName: "EZEMTECH",
@@ -29,6 +37,11 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
     webhookUrl: "",
     knowledgeBaseUrl: "URL_CSV_PUBLICA_DE_GOOGLE_SHEETS",
     localKnowledgeBaseUrl: "URL_PUBLICA/local-knowledge.csv",
+    security: {
+      requireHttps: true,
+      redactSensitiveData: true,
+      maxTextLength: 5000
+    },
     technicianEmails: {
       computers: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
       phones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
@@ -51,6 +64,13 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
 - `knowledgeBaseUrl`: URL publica CSV de Google Sheets para que el agente cargue respuestas actualizadas.
 - `localKnowledgeBaseUrl`: URL publica de un CSV propio, por ejemplo el archivo generado desde `knowledge-dropbox/processed/local-knowledge.csv`.
 - `technicianEmails`: correos por categoria para notificar al tecnico correcto.
+- `security.requireHttps`: bloquea webhooks y bases externas no HTTPS.
+- `security.redactSensitiveData`: redacta contrasenas, tarjetas, SSN, API keys y private keys antes de enviar.
+- `security.maxTextLength`: limita texto enviado a servicios externos.
+
+## Seguridad
+
+El widget no guarda datos en `localStorage`. Antes de enviar un ticket a webhook, email, WhatsApp o copia, redacta informacion sensible comun. Para envio automatico real usa siempre `https://` y nunca pongas API keys de IA en el navegador.
 
 ## Clasificacion y notificacion
 

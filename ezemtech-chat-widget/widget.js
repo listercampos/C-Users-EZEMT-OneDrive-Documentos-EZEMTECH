@@ -7,6 +7,11 @@
     webhookUrl: "",
     knowledgeBaseUrl: "",
     localKnowledgeBaseUrl: "",
+    security: {
+      requireHttps: true,
+      redactSensitiveData: true,
+      maxTextLength: 5000
+    },
     technicianEmails: {
       computers: "",
       phones: "",
@@ -332,6 +337,8 @@
     if (!urls.length) return;
 
     for (const url of urls) {
+      if (!isSecureUrl(url, { allowRelative: true })) continue;
+
       try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Knowledge base status ${response.status}`);
@@ -397,6 +404,64 @@
 
   function clean(value) {
     return String(value || "").trim();
+  }
+
+  function getSecurityConfig() {
+    return {
+      requireHttps: true,
+      redactSensitiveData: true,
+      maxTextLength: 5000,
+      ...(config.security || {})
+    };
+  }
+
+  function isSecureUrl(url, options = {}) {
+    const { allowRelative = true } = options;
+    const rawUrl = String(url || "").trim();
+    if (!rawUrl) return false;
+
+    try {
+      const hasProtocol = /^[a-z][a-z0-9+.-]*:/i.test(rawUrl);
+      if (!hasProtocol && allowRelative) return true;
+
+      const parsed = new URL(rawUrl, window.location.href);
+      if (!getSecurityConfig().requireHttps) return true;
+
+      return parsed.protocol === "https:" || parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function limitText(value) {
+    const maxLength = getSecurityConfig().maxTextLength;
+    const text = String(value || "");
+    return text.length > maxLength ? `${text.slice(0, maxLength)}... [TRUNCATED]` : text;
+  }
+
+  function sanitizeText(value) {
+    let text = limitText(value);
+    if (!getSecurityConfig().redactSensitiveData) return text;
+
+    return text
+      .replace(/\b(password|passcode|contrasena|contrase\u00f1a|clave|pin)\s*[:=]?\s*\S+/gi, "$1: [REDACTED]")
+      .replace(/\b(?:\d[ -]*?){13,19}\b/g, "[PAYMENT_CARD_REDACTED]")
+      .replace(/\b\d{3}-\d{2}-\d{4}\b/g, "[SSN_REDACTED]")
+      .replace(/\b(sk-[A-Za-z0-9_-]{10,}|AIza[0-9A-Za-z_-]{20,})\b/g, "[API_KEY_REDACTED]")
+      .replace(/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g, "[PRIVATE_KEY_REDACTED]");
+  }
+
+  function sanitizePayload(payload) {
+    if (typeof payload === "string") return sanitizeText(payload);
+    if (Array.isArray(payload)) return payload.map((item) => sanitizePayload(item));
+    if (payload && typeof payload === "object") {
+      return Object.entries(payload).reduce((safePayload, [key, value]) => {
+        safePayload[key] = sanitizePayload(value);
+        return safePayload;
+      }, {});
+    }
+
+    return payload;
   }
 
   function findKnowledgeTip() {
@@ -546,7 +611,7 @@
     }
 
     const classification = classifyTicket(data);
-    const summary = buildSummary(data, classification);
+    const summary = sanitizeText(buildSummary(data, classification));
     user(state.language === "es" ? "Datos enviados" : "Details submitted");
     bot(t("final"));
     const summaryBubble = document.createElement("div");
@@ -660,12 +725,16 @@ ${labels.description}: ${data.description}`;
 
   async function postWebhook(payload) {
     if (!config.webhookUrl) return;
+    if (!isSecureUrl(config.webhookUrl, { allowRelative: false })) return;
 
     try {
       await fetch(config.webhookUrl, {
         method: "POST",
+        cache: "no-store",
+        credentials: "omit",
+        referrerPolicy: "strict-origin-when-cross-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(sanitizePayload(payload))
       });
     } catch (error) {
       console.warn("EZEMTECH webhook failed", error);

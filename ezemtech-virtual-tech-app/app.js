@@ -4,6 +4,11 @@ const config = {
   whatsappNumber: "",
   webhookUrl: "",
   assistantWebhookUrl: "",
+  security: {
+    requireHttps: true,
+    redactSensitiveData: true,
+    maxTextLength: 5000
+  },
   technicianEmails: {
     computers: "",
     phones: "",
@@ -166,6 +171,64 @@ function getSpeechLanguage() {
   return state.language === "es" ? "es-US" : "en-US";
 }
 
+function getSecurityConfig() {
+  return {
+    requireHttps: true,
+    redactSensitiveData: true,
+    maxTextLength: 5000,
+    ...(config.security || {})
+  };
+}
+
+function isSecureUrl(url, options = {}) {
+  const { allowRelative = true } = options;
+  const rawUrl = String(url || "").trim();
+  if (!rawUrl) return false;
+
+  try {
+    const hasProtocol = /^[a-z][a-z0-9+.-]*:/i.test(rawUrl);
+    if (!hasProtocol && allowRelative) return true;
+
+    const parsed = new URL(rawUrl, window.location.href);
+    if (!getSecurityConfig().requireHttps) return true;
+
+    return parsed.protocol === "https:" || parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
+  } catch (error) {
+    return false;
+  }
+}
+
+function limitText(value) {
+  const maxLength = getSecurityConfig().maxTextLength;
+  const text = String(value || "");
+  return text.length > maxLength ? `${text.slice(0, maxLength)}... [TRUNCATED]` : text;
+}
+
+function sanitizeText(value) {
+  let text = limitText(value);
+  if (!getSecurityConfig().redactSensitiveData) return text;
+
+  return text
+    .replace(/\b(password|passcode|contrasena|contrase\u00f1a|clave|pin)\s*[:=]?\s*\S+/gi, "$1: [REDACTED]")
+    .replace(/\b(?:\d[ -]*?){13,19}\b/g, "[PAYMENT_CARD_REDACTED]")
+    .replace(/\b\d{3}-\d{2}-\d{4}\b/g, "[SSN_REDACTED]")
+    .replace(/\b(sk-[A-Za-z0-9_-]{10,}|AIza[0-9A-Za-z_-]{20,})\b/g, "[API_KEY_REDACTED]")
+    .replace(/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g, "[PRIVATE_KEY_REDACTED]");
+}
+
+function sanitizePayload(payload) {
+  if (typeof payload === "string") return sanitizeText(payload);
+  if (Array.isArray(payload)) return payload.map((item) => sanitizePayload(item));
+  if (payload && typeof payload === "object") {
+    return Object.entries(payload).reduce((safePayload, [key, value]) => {
+      safePayload[key] = sanitizePayload(value);
+      return safePayload;
+    }, {});
+  }
+
+  return payload;
+}
+
 function speak(text) {
   if (!state.voiceEnabled || !("speechSynthesis" in window)) return;
 
@@ -231,7 +294,7 @@ function startDictation() {
 
   recognition.onresult = (event) => {
     const transcript = event.results[0][0].transcript;
-    issueField.value = issueField.value || transcript;
+    issueField.value = issueField.value || sanitizeText(transcript);
     chatInput.value = transcript;
     handleUserMessage(transcript);
   };
@@ -268,7 +331,7 @@ function inferDeviceFromMessage(message) {
 function setIssueFromMessage(message) {
   const issueField = form.querySelector('textarea[name="issue"]');
   if (!issueField.value.trim()) {
-    issueField.value = message;
+    issueField.value = sanitizeText(message);
   }
 }
 
@@ -340,17 +403,21 @@ function buildLocalAssistantReply(message) {
 
 async function askRemoteAssistant(message) {
   if (!config.assistantWebhookUrl) return "";
+  if (!isSecureUrl(config.assistantWebhookUrl, { allowRelative: false })) return "";
 
   const response = await fetch(config.assistantWebhookUrl, {
     method: "POST",
+    cache: "no-store",
+    credentials: "omit",
+    referrerPolicy: "strict-origin-when-cross-origin",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message,
+    body: JSON.stringify(sanitizePayload({
+      message: sanitizeText(message),
       language: state.language,
       category: state.device,
       history: state.conversationHistory.slice(-8),
       source: window.location.href
-    })
+    }))
   });
 
   if (!response.ok) throw new Error(`Assistant status ${response.status}`);
@@ -362,8 +429,8 @@ async function handleUserMessage(message) {
   const cleanMessage = String(message || "").trim();
   if (!cleanMessage) return;
 
-  addMessage(cleanMessage, "user");
-  state.conversationHistory.push({ role: "user", content: cleanMessage });
+  addMessage(sanitizeText(cleanMessage), "user");
+  state.conversationHistory.push({ role: "user", content: sanitizeText(cleanMessage) });
   chatInput.value = "";
 
   if (handleLocalCommand(cleanMessage)) return;
@@ -381,7 +448,7 @@ async function handleUserMessage(message) {
   if (!reply) reply = buildLocalAssistantReply(cleanMessage);
 
   addMessage(reply);
-  state.conversationHistory.push({ role: "assistant", content: reply });
+  state.conversationHistory.push({ role: "assistant", content: sanitizeText(reply) });
 }
 
 function setDevice(device) {
@@ -454,12 +521,16 @@ Reservar en ${config.bookingUrl} o contactar a EZEMTECH para soporte tecnico.`;
 
 async function postWebhook(payload) {
   if (!config.webhookUrl) return;
+  if (!isSecureUrl(config.webhookUrl, { allowRelative: false })) return;
 
   try {
     await fetch(config.webhookUrl, {
       method: "POST",
+      cache: "no-store",
+      credentials: "omit",
+      referrerPolicy: "strict-origin-when-cross-origin",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(sanitizePayload(payload))
     });
   } catch (error) {
     console.warn("EZEMTECH webhook failed", error);
@@ -486,12 +557,17 @@ function sendWhatsapp() {
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
-  state.lastTicket = buildTicket(data);
-  addMessage(data.issue, "user");
+  state.lastTicket = sanitizeText(buildTicket(data));
+  addMessage(sanitizeText(data.issue), "user");
 
   const answer = document.createElement("div");
   answer.className = "message";
-  answer.innerHTML = `<strong>${content[state.language].ticketTitle}</strong>${state.lastTicket.replace(/\n/g, "<br>")}`;
+  const answerTitle = document.createElement("strong");
+  answerTitle.textContent = content[state.language].ticketTitle;
+  const answerBody = document.createElement("div");
+  answerBody.className = "ticket-text";
+  answerBody.textContent = state.lastTicket;
+  answer.append(answerTitle, answerBody);
   conversation.appendChild(answer);
   conversation.scrollTop = conversation.scrollHeight;
   speak(`${content[state.language].ticketTitle}. ${content[state.language].recommendations[state.device] || content[state.language].recommendations.computers}`);

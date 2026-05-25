@@ -23,28 +23,31 @@ http://localhost:4174
 3. Ese boton debe abrir la URL publica de esta app.
 4. El usuario podra instalarla desde el navegador si el dispositivo soporta PWA.
 
-## Correos de tecnicos
+## Configuracion segura
 
-Configura los correos en `index.html`:
+Configura correos, WhatsApp, webhooks y seguridad en `config.js`. No pongas API keys de OpenAI, Gemini ni ningun proveedor de IA dentro de la app del navegador.
 
-```html
-<script>
-  window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
-    bookingUrl: "https://www.ezemtech.com/book-online",
-    websiteUrl: "https://www.ezemtech.com/",
-    whatsappNumber: "16468422766",
-    webhookUrl: "",
-    assistantWebhookUrl: "",
-    technicianEmails: {
-      computers: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-      phones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-      drones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-      ai: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-      network: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-      general: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com"
-    }
-  };
-</script>
+```js
+window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
+  bookingUrl: "https://www.ezemtech.com/book-online",
+  websiteUrl: "https://www.ezemtech.com/",
+  whatsappNumber: "16468422766",
+  webhookUrl: "",
+  assistantWebhookUrl: "",
+  security: {
+    requireHttps: true,
+    redactSensitiveData: true,
+    maxTextLength: 5000
+  },
+  technicianEmails: {
+    computers: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
+    phones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
+    drones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
+    ai: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
+    network: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
+    general: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com"
+  }
+};
 ```
 
 La app clasifica el caso y usa el correo correcto en **Notificar tecnico**. Si agregas `webhookUrl`, tambien envia los datos a Zapier, Make o n8n para mandar el correo automaticamente.
@@ -60,6 +63,16 @@ La app permite escribir o hablar en modo conversacion. El cliente puede decir co
 - "Notificar al tecnico."
 
 Sin backend, la app responde con un tecnico virtual local usando reglas de soporte. Para respuestas IA tipo ChatGPT reales, conecta `assistantWebhookUrl` a un backend seguro con OpenAI, n8n, Make o Zapier. No pongas una API key directa en el navegador.
+
+## Seguridad
+
+- La app bloquea webhooks `http://` cuando `requireHttps` esta activo.
+- Redacta contrasenas, claves, tarjetas, SSN, API keys y private keys antes de enviar tickets o historial a webhooks.
+- No guarda datos de clientes en `localStorage`.
+- El service worker solo cachea archivos de la app y no intercepta `POST` ni URLs externas.
+- `index.html` incluye Content Security Policy para limitar scripts, estilos, conexiones e imagenes.
+
+Lee `../SECURITY.md` antes de conectar un backend IA real.
 
 ## Incluye
 

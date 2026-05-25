@@ -4,6 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0b63ce" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'self' https:; img-src 'self' data:; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
     <title>EZEMTECH Virtual Tech</title>
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="stylesheet" href="./styles.css" />
@@ -126,23 +131,7 @@
       </section>
     </main>
 
-    <script>
-      window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
-        bookingUrl: "https://www.ezemtech.com/book-online",
-        websiteUrl: "https://www.ezemtech.com/",
-        whatsappNumber: "16468422766",
-        webhookUrl: "",
-        assistantWebhookUrl: "",
-        technicianEmails: {
-          computers: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-          phones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-          drones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-          ai: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-          network: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-          general: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com"
-        }
-      };
-    </script>
+    <script src="./config.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

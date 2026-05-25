@@ -267,6 +267,10 @@ h1 {
   margin-bottom: 5px;
 }
 
+.ticket-text {
+  white-space: pre-wrap;
+}
+
 .chat-composer {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
