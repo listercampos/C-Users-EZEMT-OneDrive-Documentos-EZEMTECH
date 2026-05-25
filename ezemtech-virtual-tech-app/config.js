@@ -25,11 +25,11 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
     maxTextLength: 5000
   },
   technicianEmails: {
-    computers: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-    phones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-    drones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-    ai: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-    network: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-    general: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com"
+    computers: "support@ezemtech.com",
+    phones: "support@ezemtech.com",
+    drones: "support@ezemtech.com",
+    ai: "support@ezemtech.com",
+    network: "support@ezemtech.com",
+    general: "support@ezemtech.com"
   }
 };
