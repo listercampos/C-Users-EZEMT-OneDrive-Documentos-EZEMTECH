@@ -35,7 +35,7 @@ Si necesitas configurar directo en Wix, puedes usar este bloque antes de `widget
     bookingUrl: "https://www.ezemtech.com/book-online",
     contactEmail: "info@ezemtech.com,listercampos@gmail.com",
     whatsappNumber: "16468422766",
-    webhookUrl: "",
+    webhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
     assistantWebhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
     knowledgeBaseUrl: "URL_CSV_PUBLICA_DE_GOOGLE_SHEETS",
     localKnowledgeBaseUrl: "URL_PUBLICA/local-knowledge.csv",
@@ -73,7 +73,7 @@ Si necesitas configurar directo en Wix, puedes usar este bloque antes de `widget
 
 - `contactEmail`: email donde quieres recibir tickets.
 - `whatsappNumber`: numero en formato internacional sin signos. Ejemplo: `15551234567`.
-- `webhookUrl`: URL opcional de Zapier, Make o n8n para crear tickets automaticamente.
+- `webhookUrl`: URL HTTPS del Worker o de Zapier, Make o n8n para crear tickets automaticamente.
 - `assistantWebhookUrl`: URL HTTPS del Worker para chat IA con busqueda en internet.
 - `bookingUrl`: enlace de reservas de EZEMTECH.
 - `knowledgeBaseUrl`: URL publica CSV de Google Sheets para que el agente cargue respuestas actualizadas.
@@ -87,7 +87,7 @@ Si necesitas configurar directo en Wix, puedes usar este bloque antes de `widget
 
 El widget no guarda datos en `localStorage`. Antes de enviar un ticket a webhook, email, WhatsApp o copia, redacta informacion sensible comun. Para envio automatico real usa siempre `https://` y nunca pongas API keys de IA en el navegador.
 
-Si usas `assistantWebhookUrl`, las claves de SerpAPI/Groq deben vivir en el Worker, no en este widget.
+Si usas `assistantWebhookUrl` o `webhookUrl`, las claves de SerpAPI/Groq/correo deben vivir en el Worker, no en este widget. El widget envia tickets al Worker con `action: "ticket"`.
 
 ## Clasificacion y notificacion
 

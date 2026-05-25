@@ -5,18 +5,32 @@
 // SERP_API_KEY    = clave de SerpAPI
 // GROQ_API_KEY    = clave de Groq
 // GROQ_MODEL      = llama3-8b-8192 (opcional)
-// ALLOWED_ORIGINS = https://www.ezemtech.com,https://ezemtech.com,http://localhost:4174
+// EMAIL_WEBHOOK_URL = webhook opcional de Zapier, Make, n8n o Apps Script para notificar tickets
+// LEARNING_WEBHOOK_URL = webhook opcional para guardar aprendizaje con consentimiento
+// RESEND_API_KEY  = opcional si quieres enviar correo directo con Resend
+// EMAIL_FROM      = opcional, ejemplo: EZEMTECH AI <support@ezemtech.com>
+// ALLOWED_ORIGINS = https://www.ezemtech.com,https://ezemtech.com,http://localhost:4174,http://localhost:4175
 
 const DEFAULT_ALLOWED_ORIGINS = [
   "https://www.ezemtech.com",
   "https://ezemtech.com",
   "http://localhost:4174",
-  "http://127.0.0.1:4174"
+  "http://127.0.0.1:4174",
+  "http://localhost:4175",
+  "http://127.0.0.1:4175"
 ];
 
 const ROUTES = {
   sales: "sales@ezemtech.com,listercampos@gmail.com",
   default: "info@ezemtech.com,listercampos@gmail.com"
+};
+
+const COMPANY = {
+  name: "EZEMTECH LLC",
+  location: "New Jersey, United States",
+  website: "https://www.ezemtech.com/",
+  bookingUrl: "https://www.ezemtech.com/book-online",
+  phone: "+1 646 842 2766"
 };
 
 function getAllowedOrigins(env) {
@@ -93,6 +107,151 @@ function classify(message, category) {
   }
 
   return "default";
+}
+
+function getRouteEmail(routeType) {
+  return routeType === "sales" ? ROUTES.sales : ROUTES.default;
+}
+
+function makeTicketId() {
+  const stamp = new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
+  const random = Math.random().toString(36).slice(2, 8).toUpperCase();
+  return `EZT-${stamp}-${random}`;
+}
+
+function getRequestAction(body) {
+  const action = normalize(body.action || body.type || body.eventType || "");
+  if (action.includes("ticket")) return "ticket";
+  if (action.includes("learning") || action.includes("conversation_turn")) return "learning";
+  if (body.ticket || body.summary) return "ticket";
+  return "chat";
+}
+
+function buildPlainTicket(ticket) {
+  return [
+    `Ticket ID: ${ticket.ticketId}`,
+    `Empresa: ${COMPANY.name}`,
+    `Ubicacion: ${COMPANY.location}`,
+    `Categoria: ${ticket.category}`,
+    `Destino interno: ${ticket.routedTo}`,
+    "",
+    `Cliente: ${ticket.customerName || "N/A"}`,
+    `Contacto: ${ticket.customerContact || "N/A"}`,
+    `Telefono: ${ticket.phone || "N/A"}`,
+    `Email: ${ticket.email || "N/A"}`,
+    `Ubicacion cliente: ${ticket.location || "N/A"}`,
+    "",
+    "Resumen:",
+    ticket.summary || "N/A",
+    "",
+    "Ticket completo:",
+    ticket.ticket || "N/A",
+    "",
+    `Reserva: ${COMPANY.bookingUrl}`,
+    `WhatsApp / llamadas: ${COMPANY.phone}`
+  ].join("\n");
+}
+
+function buildHtmlTicket(ticket) {
+  const safe = (value) => sanitizeText(value || "N/A").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#39;"
+  })[char]);
+
+  return `
+    <h2>Nuevo ticket EZEMTECH</h2>
+    <p><strong>Ticket ID:</strong> ${safe(ticket.ticketId)}</p>
+    <p><strong>Categoria:</strong> ${safe(ticket.category)}</p>
+    <p><strong>Destino interno:</strong> ${safe(ticket.routedTo)}</p>
+    <hr>
+    <p><strong>Cliente:</strong> ${safe(ticket.customerName)}</p>
+    <p><strong>Contacto:</strong> ${safe(ticket.customerContact)}</p>
+    <p><strong>Telefono:</strong> ${safe(ticket.phone)}</p>
+    <p><strong>Email:</strong> ${safe(ticket.email)}</p>
+    <p><strong>Ubicacion:</strong> ${safe(ticket.location)}</p>
+    <hr>
+    <h3>Resumen</h3>
+    <pre style="white-space:pre-wrap;font-family:Arial,sans-serif">${safe(ticket.summary)}</pre>
+    <h3>Ticket completo</h3>
+    <pre style="white-space:pre-wrap;font-family:Arial,sans-serif">${safe(ticket.ticket)}</pre>
+    <p><a href="${COMPANY.bookingUrl}">Reservar cita</a> | ${COMPANY.phone}</p>
+  `;
+}
+
+async function forwardWebhook(url, payload) {
+  if (!url) return { configured: false, ok: false, status: "not_configured" };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    return {
+      configured: true,
+      ok: response.ok,
+      status: response.ok ? "sent" : "failed",
+      httpStatus: response.status
+    };
+  } catch (error) {
+    return { configured: true, ok: false, status: "failed", error: error.message };
+  }
+}
+
+async function sendWithResend(ticket, env) {
+  if (!env.RESEND_API_KEY) return { configured: false, ok: false, status: "not_configured" };
+
+  const from = env.EMAIL_FROM || "EZEMTECH AI <support@ezemtech.com>";
+  const to = ticket.routedTo.split(",").map((email) => email.trim()).filter(Boolean);
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${env.RESEND_API_KEY}`
+      },
+      body: JSON.stringify({
+        from,
+        to,
+        reply_to: env.EMAIL_REPLY_TO || undefined,
+        subject: `EZEMTECH ${ticket.category} - ${ticket.ticketId}`,
+        text: buildPlainTicket(ticket),
+        html: buildHtmlTicket(ticket)
+      })
+    });
+
+    return {
+      configured: true,
+      ok: response.ok,
+      status: response.ok ? "sent" : "failed",
+      httpStatus: response.status
+    };
+  } catch (error) {
+    return { configured: true, ok: false, status: "failed", error: error.message };
+  }
+}
+
+async function notifyTicket(ticket, env) {
+  const webhook = await forwardWebhook(env.EMAIL_WEBHOOK_URL, {
+    eventType: "ticket_created",
+    ...ticket,
+    plainText: buildPlainTicket(ticket),
+    createdAt: new Date().toISOString()
+  });
+
+  if (webhook.ok) return { provider: "webhook", ...webhook };
+
+  const resend = await sendWithResend(ticket, env);
+  if (resend.ok) return { provider: "resend", ...resend };
+
+  if (webhook.configured) return { provider: "webhook", ...webhook };
+  if (resend.configured) return { provider: "resend", ...resend };
+
+  return { provider: "none", configured: false, ok: false, status: "not_configured" };
 }
 
 function buildSearchQuery(message) {
@@ -200,6 +359,97 @@ async function askGroq({ message, language, category, history, brandPolicy, sear
   return data.choices?.[0]?.message?.content || "No pude generar una respuesta en este momento.";
 }
 
+async function handleChat(request, env, body) {
+  const message = sanitizeText(body.message || "");
+  if (!message.trim()) {
+    return jsonResponse(request, env, { error: "Mensaje vacio" }, 400);
+  }
+
+  const language = body.language === "en" ? "en" : "es";
+  const routeType = classify(message, body.category);
+  const routeEmail = getRouteEmail(routeType);
+  const search = await searchInternet(message, env.SERP_API_KEY, language);
+  const reply = await askGroq({
+    message,
+    language,
+    category: routeType,
+    history: sanitizePayload(body.history || []),
+    brandPolicy: sanitizePayload(body.brandPolicy || {}),
+    searchContext: search.summary,
+    routeEmail,
+    groqApiKey: env.GROQ_API_KEY,
+    model: env.GROQ_MODEL
+  });
+
+  return jsonResponse(request, env, {
+    reply,
+    routedTo: routeEmail,
+    category: routeType,
+    sources: search.sources
+  });
+}
+
+async function handleTicket(request, env, body) {
+  const summary = sanitizeText(body.summary || body.ticket || body.description || body.issue || "");
+  const routeType = body.classification === "sales" ? "sales" : classify(summary, body.category || body.classification);
+  const routedTo = getRouteEmail(routeType);
+  const ticket = sanitizePayload({
+    ticketId: makeTicketId(),
+    category: routeType,
+    routedTo,
+    language: body.language === "en" ? "en" : "es",
+    customerName: body.name || body.customerName || "",
+    customerContact: body.contact || "",
+    phone: body.phone || "",
+    email: body.email || "",
+    location: body.location || "",
+    issue: body.issue || "",
+    urgency: body.urgency || "",
+    serviceType: body.serviceType || body.service || "",
+    device: body.device || body.category || "",
+    summary,
+    ticket: body.ticket || body.summary || "",
+    source: body.source || "",
+    company: COMPANY
+  });
+
+  const notification = await notifyTicket(ticket, env);
+
+  return jsonResponse(request, env, {
+    ok: true,
+    ticketId: ticket.ticketId,
+    category: ticket.category,
+    routedTo,
+    notificationStatus: notification.status,
+    notificationProvider: notification.provider
+  });
+}
+
+async function handleLearning(request, env, body) {
+  if (!body.consent) {
+    return jsonResponse(request, env, { ok: false, stored: false, reason: "consent_required" }, 200);
+  }
+
+  const payload = sanitizePayload({
+    eventType: body.eventType || "learning_event",
+    consent: true,
+    language: body.language || "es",
+    category: body.category || "general",
+    classification: body.classification || "general",
+    payload: body.payload || {},
+    source: body.source || "",
+    createdAt: new Date().toISOString()
+  });
+
+  const forwarded = await forwardWebhook(env.LEARNING_WEBHOOK_URL, payload);
+
+  return jsonResponse(request, env, {
+    ok: true,
+    stored: forwarded.ok,
+    learningStatus: forwarded.status
+  });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -217,33 +467,12 @@ export default {
 
     try {
       const body = await request.json();
-      const message = sanitizeText(body.message || "");
-      if (!message.trim()) {
-        return jsonResponse(request, env, { error: "Mensaje vacio" }, 400);
-      }
+      const action = getRequestAction(body);
 
-      const language = body.language === "en" ? "en" : "es";
-      const routeType = classify(message, body.category);
-      const routeEmail = routeType === "sales" ? ROUTES.sales : ROUTES.default;
-      const search = await searchInternet(message, env.SERP_API_KEY, language);
-      const reply = await askGroq({
-        message,
-        language,
-        category: routeType,
-        history: sanitizePayload(body.history || []),
-        brandPolicy: sanitizePayload(body.brandPolicy || {}),
-        searchContext: search.summary,
-        routeEmail,
-        groqApiKey: env.GROQ_API_KEY,
-        model: env.GROQ_MODEL
-      });
+      if (action === "ticket") return handleTicket(request, env, body);
+      if (action === "learning") return handleLearning(request, env, body);
 
-      return jsonResponse(request, env, {
-        reply,
-        routedTo: routeEmail,
-        category: routeType,
-        sources: search.sources
-      });
+      return handleChat(request, env, body);
     } catch (error) {
       console.error("EZEMTECH worker error", error.message);
       return jsonResponse(request, env, { error: "Error interno del asistente" }, 500);

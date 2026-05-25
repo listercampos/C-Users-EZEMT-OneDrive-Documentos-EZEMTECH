@@ -7,7 +7,7 @@ La seguridad de datos de clientes y claves de IA es prioridad. Este proyecto est
 - No pongas API keys de OpenAI, Gemini, correo, Twilio, Make, Zapier o n8n dentro de `app.js`, `widget.js`, `index.html` ni `config.js`.
 - No pongas tokens de Cloudflare (`cfut_...`), Groq (`gsk_...`), SerpAPI ni GitHub dentro del repo ni en capturas publicas.
 - Toda IA real debe pasar por un backend seguro, por ejemplo n8n, Make, Zapier, Cloudflare Worker, Vercel Function o servidor propio.
-- Usa solo URLs `https://` para `webhookUrl`, `assistantWebhookUrl`, `learningWebhookUrl`, Google Sheets publicado y cualquier API externa.
+- Usa solo URLs `https://` para `webhookUrl`, `assistantWebhookUrl`, `learningWebhookUrl`, `EMAIL_WEBHOOK_URL`, Google Sheets publicado y cualquier API externa.
 - No pidas ni guardes contrasenas de clientes. El agente ya muestra avisos para no compartir contrasenas.
 - No subas documentos con datos privados de clientes a Google Sheets publico ni a GitHub.
 - No guardes conversaciones de clientes sin consentimiento claro.
@@ -37,6 +37,7 @@ Usa `assistantWebhookUrl` apuntando a un backend HTTPS. Ese backend debe:
 - Redactar o filtrar PII antes de llamar al modelo cuando aplique.
 - Registrar solo lo necesario para soporte.
 - Enviar al navegador solo la respuesta final, nunca secretos ni trazas internas.
+- Enviar tickets/notificaciones desde backend con secretos en variables de entorno, no desde el navegador.
 
 ## Internet como base de aprendizaje
 

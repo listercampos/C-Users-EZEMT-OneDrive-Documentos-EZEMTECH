@@ -55,6 +55,35 @@ Solo recibe datos cuando el cliente acepta guardar la conversacion. Recibe event
 }
 ```
 
+## `webhookUrl` para tickets
+
+La app y el widget pueden enviar tickets al mismo Worker con:
+
+```json
+{
+  "action": "ticket",
+  "language": "es",
+  "category": "computers",
+  "classification": "computers",
+  "name": "Cliente",
+  "contact": "telefono o email",
+  "ticket": "Resumen completo",
+  "source": "https://..."
+}
+```
+
+Debe responder:
+
+```json
+{
+  "ok": true,
+  "ticketId": "EZT-...",
+  "category": "default",
+  "routedTo": "info@ezemtech.com,listercampos@gmail.com",
+  "notificationStatus": "sent"
+}
+```
+
 ## Reglas del backend
 
 - Guardar API keys en variables de entorno.

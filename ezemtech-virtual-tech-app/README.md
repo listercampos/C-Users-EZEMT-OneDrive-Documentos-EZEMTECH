@@ -32,9 +32,9 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
   bookingUrl: "https://www.ezemtech.com/book-online",
   websiteUrl: "https://www.ezemtech.com/",
   whatsappNumber: "16468422766",
-  webhookUrl: "",
+  webhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
   assistantWebhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
-  learningWebhookUrl: "",
+  learningWebhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
   brandPolicy: {
     companyName: "EZEMTECH LLC",
     primaryDomain: "https://www.ezemtech.com/",
@@ -75,7 +75,7 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
 };
 ```
 
-La app clasifica el caso y usa el correo correcto en **Notificar tecnico**. Si agregas `webhookUrl`, tambien envia los datos a Zapier, Make o n8n para mandar el correo automaticamente.
+La app clasifica el caso y usa el correo correcto en **Notificar tecnico**. Ahora `webhookUrl` puede apuntar al Worker seguro para recibir tickets. Si en Cloudflare agregas `EMAIL_WEBHOOK_URL` o `RESEND_API_KEY`, el Worker puede disparar la notificacion automatica desde backend.
 
 Ruteo actual:
 
@@ -113,6 +113,7 @@ Para aprender de conversaciones, conecta `learningWebhookUrl`. La app solo envia
 - No guarda datos de clientes en `localStorage`.
 - El service worker solo cachea archivos de la app y no intercepta `POST` ni URLs externas.
 - `index.html` incluye Content Security Policy para limitar scripts, estilos, conexiones e imagenes.
+- Los tickets se envian al Worker con `action: "ticket"` y los eventos de aprendizaje con `action: "learning"`.
 
 Lee `../SECURITY.md` antes de conectar un backend IA real.
 

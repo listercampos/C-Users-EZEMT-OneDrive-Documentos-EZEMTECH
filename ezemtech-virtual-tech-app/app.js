@@ -66,6 +66,8 @@ const content = {
     copied: "Ticket copiado.",
     notifyTech: "Notificar tecnico",
     notified: "Notificacion preparada para el tecnico.",
+    backendNotified: "Ticket enviado al backend seguro. Ruta interna:",
+    backendPending: "Ticket creado. Backend recibido, notificacion automatica pendiente de configurar.",
     voiceOn: "Activar voz",
     voiceOff: "Pausar voz",
     listening: "Escuchando...",
@@ -119,6 +121,8 @@ const content = {
     copied: "Ticket copied.",
     notifyTech: "Notify technician",
     notified: "Technician notification prepared.",
+    backendNotified: "Ticket sent to the secure backend. Internal route:",
+    backendPending: "Ticket created. Backend received it; automatic notification is pending configuration.",
     voiceOn: "Turn voice on",
     voiceOff: "Pause voice",
     listening: "Listening...",
@@ -500,6 +504,7 @@ async function storeLearningEvent(eventType, payload) {
       referrerPolicy: "strict-origin-when-cross-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(sanitizePayload({
+        action: "learning",
         eventType,
         consent: true,
         language: state.language,
@@ -626,11 +631,11 @@ Reservar en ${config.bookingUrl}, llamar o enviar WhatsApp a +1 646 842 2766, o 
 }
 
 async function postWebhook(payload) {
-  if (!config.webhookUrl) return;
-  if (!isSecureUrl(config.webhookUrl, { allowRelative: false })) return;
+  if (!config.webhookUrl) return null;
+  if (!isSecureUrl(config.webhookUrl, { allowRelative: false })) return null;
 
   try {
-    await fetch(config.webhookUrl, {
+    const response = await fetch(config.webhookUrl, {
       method: "POST",
       cache: "no-store",
       credentials: "omit",
@@ -638,8 +643,11 @@ async function postWebhook(payload) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(sanitizePayload(payload))
     });
+    if (!response.ok) return null;
+    return response.json();
   } catch (error) {
     console.warn("EZEMTECH webhook failed", error);
+    return null;
   }
 }
 
@@ -677,7 +685,8 @@ form.addEventListener("submit", async (event) => {
   conversation.appendChild(answer);
   conversation.scrollTop = conversation.scrollHeight;
   speak(`${content[state.language].ticketTitle}. ${content[state.language].recommendations[state.device] || content[state.language].recommendations.computers}`);
-  await postWebhook({
+  const webhookResult = await postWebhook({
+    action: "ticket",
     language: state.language,
     category: state.device,
     classification: state.lastClassification,
@@ -686,6 +695,11 @@ form.addEventListener("submit", async (event) => {
     ticket: state.lastTicket,
     source: window.location.href
   });
+  if (webhookResult?.ok && webhookResult.notificationStatus === "sent") {
+    addMessage(`${t("backendNotified")} ${webhookResult.routedTo || getTechnicianEmail(state.lastClassification)}`);
+  } else if (webhookResult?.ok) {
+    addMessage(t("backendPending"));
+  }
   await storeLearningEvent("ticket_created", {
     ticket: state.lastTicket,
     form: data

@@ -68,6 +68,8 @@
       whatsapp: "Enviar por WhatsApp",
       copySummary: "Copiar resumen",
       copied: "Resumen copiado.",
+      backendNotified: "Ticket enviado al backend seguro. Ruta interna:",
+      backendPending: "Ticket creado. Backend recibido, notificacion automatica pendiente de configurar.",
       voiceOn: "Activar voz",
       voiceOff: "Pausar voz",
       listen: "Dictar problema",
@@ -104,6 +106,8 @@
       whatsapp: "Send by WhatsApp",
       copySummary: "Copy summary",
       copied: "Summary copied.",
+      backendNotified: "Ticket sent to the secure backend. Internal route:",
+      backendPending: "Ticket created. Backend received it; automatic notification is pending configuration.",
       voiceOn: "Turn voice on",
       voiceOff: "Pause voice",
       listen: "Dictate issue",
@@ -764,7 +768,8 @@
     summaryBubble.textContent = summary;
     messages.appendChild(summaryBubble);
     messages.scrollTop = messages.scrollHeight;
-    await postWebhook({
+    const webhookResult = await postWebhook({
+      action: "ticket",
       language: state.language,
       issue: state.issue,
       urgency: state.urgency,
@@ -776,6 +781,11 @@
       summary,
       source: window.location.href
     });
+    if (webhookResult?.ok && webhookResult.notificationStatus === "sent") {
+      bot(`${t("backendNotified")} ${webhookResult.routedTo || getTechnicianEmail(classification.id)}`);
+    } else if (webhookResult?.ok) {
+      bot(t("backendPending"));
+    }
     renderActions(summary, classification);
   }
 
@@ -875,11 +885,11 @@ WhatsApp / Calls: +1 646 842 2766`;
   }
 
   async function postWebhook(payload) {
-    if (!config.webhookUrl) return;
-    if (!isSecureUrl(config.webhookUrl, { allowRelative: false })) return;
+    if (!config.webhookUrl) return null;
+    if (!isSecureUrl(config.webhookUrl, { allowRelative: false })) return null;
 
     try {
-      await fetch(config.webhookUrl, {
+      const response = await fetch(config.webhookUrl, {
         method: "POST",
         cache: "no-store",
         credentials: "omit",
@@ -887,8 +897,11 @@ WhatsApp / Calls: +1 646 842 2766`;
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(sanitizePayload(payload))
       });
+      if (!response.ok) return null;
+      return response.json();
     } catch (error) {
       console.warn("EZEMTECH webhook failed", error);
+      return null;
     }
   }
 

@@ -24,6 +24,7 @@ segun el tipo de solicitud.
 - Conexion opcional a Google Sheets como base de conocimiento bilingue.
 - App instalable para diagnostico de computadoras, drones, telefonos e IA.
 - Pantalla principal tipo chat conversacional con logo EZEMTECH.
+- Worker seguro para chat IA, tickets, aprendizaje con consentimiento y notificacion backend.
 - Redaccion automatica de datos sensibles y bloqueo de endpoints no HTTPS.
 
 ## Ruteo

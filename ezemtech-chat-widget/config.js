@@ -3,7 +3,7 @@ window.EZEMTECH_AGENT_CONFIG = {
   bookingUrl: "https://www.ezemtech.com/book-online",
   contactEmail: "info@ezemtech.com,listercampos@gmail.com",
   whatsappNumber: "16468422766",
-  webhookUrl: "",
+  webhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
   assistantWebhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
   knowledgeBaseUrl: "",
   localKnowledgeBaseUrl: "./knowledge-dropbox/processed/local-knowledge.csv",

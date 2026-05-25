@@ -2,9 +2,9 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
   bookingUrl: "https://www.ezemtech.com/book-online",
   websiteUrl: "https://www.ezemtech.com/",
   whatsappNumber: "16468422766",
-  webhookUrl: "",
+  webhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
   assistantWebhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
-  learningWebhookUrl: "",
+  learningWebhookUrl: "https://ezemtech.mastecnologiaec.workers.dev",
   brandPolicy: {
     companyName: "EZEMTECH LLC",
     primaryDomain: "https://www.ezemtech.com/",
