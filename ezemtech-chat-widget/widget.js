@@ -6,6 +6,7 @@
     whatsappNumber: "",
     webhookUrl: "",
     knowledgeBaseUrl: "",
+    localKnowledgeBaseUrl: "",
     ...(window.EZEMTECH_AGENT_CONFIG || {})
   };
 
@@ -195,24 +196,27 @@
   async function loadKnowledgeBase() {
     state.knowledgeBase = defaultKnowledgeBase;
 
-    if (!config.knowledgeBaseUrl) return;
+    const urls = [config.localKnowledgeBaseUrl, config.knowledgeBaseUrl].filter(Boolean);
+    if (!urls.length) return;
 
-    try {
-      const response = await fetch(config.knowledgeBaseUrl);
-      if (!response.ok) throw new Error(`Knowledge base status ${response.status}`);
-      const csv = await response.text();
-      const rows = parseCsv(csv);
-      const entries = rows
-        .map((row) => ({
-          language: clean(row.language || row.idioma || row.lang),
-          keywords: clean(row.keywords || row.palabras_clave || row.palabras || row.issue),
-          response: clean(row.response || row.respuesta || row.answer)
-        }))
-        .filter((row) => row.language && row.keywords && row.response);
+    for (const url of urls) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Knowledge base status ${response.status}`);
+        const csv = await response.text();
+        const rows = parseCsv(csv);
+        const entries = rows
+          .map((row) => ({
+            language: clean(row.language || row.idioma || row.lang),
+            keywords: clean(row.keywords || row.palabras_clave || row.palabras || row.issue),
+            response: clean(row.response || row.respuesta || row.answer)
+          }))
+          .filter((row) => row.language && row.keywords && row.response);
 
-      if (entries.length) state.knowledgeBase = entries;
-    } catch (error) {
-      console.warn("EZEMTECH knowledge base failed", error);
+        if (entries.length) state.knowledgeBase = [...state.knowledgeBase, ...entries];
+      } catch (error) {
+        console.warn("EZEMTECH knowledge base failed", error);
+      }
     }
   }
 

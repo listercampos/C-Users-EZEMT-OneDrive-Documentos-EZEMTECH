@@ -27,7 +27,8 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
     contactEmail: "TU_EMAIL_AQUI",
     whatsappNumber: "TU_NUMERO_WHATSAPP_CON_CODIGO_PAIS",
     webhookUrl: "",
-    knowledgeBaseUrl: "URL_CSV_PUBLICA_DE_GOOGLE_SHEETS"
+    knowledgeBaseUrl: "URL_CSV_PUBLICA_DE_GOOGLE_SHEETS",
+    localKnowledgeBaseUrl: "URL_PUBLICA/local-knowledge.csv"
   };
 </script>
 <script src="URL_PUBLICA/widget.js"></script>
@@ -40,6 +41,7 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
 - `webhookUrl`: URL opcional de Zapier, Make o n8n para crear tickets automaticamente.
 - `bookingUrl`: enlace de reservas de EZEMTECH.
 - `knowledgeBaseUrl`: URL publica CSV de Google Sheets para que el agente cargue respuestas actualizadas.
+- `localKnowledgeBaseUrl`: URL publica de un CSV propio, por ejemplo el archivo generado desde `knowledge-dropbox/processed/local-knowledge.csv`.
 
 ## Conexion a Google Sheets
 
@@ -61,6 +63,16 @@ en,"slow computer,slow,windows","Restart the computer and check available space.
 ```
 
 Importante: no pongas contrasenas, datos privados de clientes ni informacion sensible en esa hoja si la publicas como CSV.
+
+## Carpeta para PDFs e imagenes
+
+Tambien se incluye `knowledge-dropbox/` para que pegues documentos que quieras convertir en conocimiento del agente:
+
+- `knowledge-dropbox/pdfs/`
+- `knowledge-dropbox/images/`
+- `knowledge-dropbox/processed/local-knowledge.csv`
+
+El navegador no puede leer PDFs o imagenes directamente desde una carpeta local por seguridad. La forma correcta es extraer o resumir la informacion importante y ponerla en `processed/local-knowledge.csv` o en Google Sheets con las columnas `language`, `keywords`, `response`.
 
 ## Flujo incluido
 
