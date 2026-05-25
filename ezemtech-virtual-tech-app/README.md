@@ -34,12 +34,12 @@ Configura los correos en `index.html`:
     websiteUrl: "https://www.ezemtech.com/",
     webhookUrl: "",
     technicianEmails: {
-      computers: "computers@ezemtech.com",
-      phones: "phones@ezemtech.com",
-      drones: "drones@ezemtech.com",
-      ai: "ai@ezemtech.com",
-      network: "network@ezemtech.com",
-      general: "support@ezemtech.com"
+      computers: "ezemtech@gmail.com",
+      phones: "ezemtech@gmail.com",
+      drones: "ezemtech@gmail.com",
+      ai: "ezemtech@gmail.com",
+      network: "ezemtech@gmail.com",
+      general: "ezemtech@gmail.com"
     }
   };
 </script>
