@@ -16,7 +16,9 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
       "phone support",
       "drone support",
       "AI automation",
-      "business IT support"
+      "business IT support",
+      "sales consultation",
+      "product information"
     ]
   },
   security: {
@@ -30,6 +32,8 @@ window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
     drones: "support@ezemtech.com",
     ai: "support@ezemtech.com",
     network: "support@ezemtech.com",
+    sales: "sales@ezemtech.com,info@ezemtech.com",
+    information: "info@ezemtech.com,sales@ezemtech.com",
     general: "support@ezemtech.com"
   }
 };

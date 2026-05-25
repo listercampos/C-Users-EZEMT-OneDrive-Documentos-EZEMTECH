@@ -18,6 +18,8 @@
       drones: "",
       ai: "",
       network: "",
+      sales: "",
+      information: "",
       general: ""
     },
     ...(window.EZEMTECH_AGENT_CONFIG || {})
@@ -97,8 +99,8 @@
   };
 
   const issueLabels = {
-    es: ["Computadora lenta", "Virus o malware", "Internet/Wi-Fi", "Impresora", "Email", "Backup o data", "Windows/Mac", "Otro"],
-    en: ["Slow computer", "Virus or malware", "Internet/Wi-Fi", "Printer", "Email", "Backup or data", "Windows/Mac", "Other"]
+    es: ["Computadora lenta", "Virus o malware", "Internet/Wi-Fi", "Impresora", "Email", "Backup o data", "Windows/Mac", "Ventas / Informacion", "Otro"],
+    en: ["Slow computer", "Virus or malware", "Internet/Wi-Fi", "Printer", "Email", "Backup or data", "Windows/Mac", "Sales / Information", "Other"]
   };
 
   const urgencyLabels = {
@@ -483,6 +485,16 @@
   function classifyTicket(data) {
     const text = `${state.issue} ${state.serviceType} ${data.device || ""} ${data.description || ""}`.toLowerCase();
     const categories = [
+      {
+        id: "sales",
+        label: state.language === "es" ? "Ventas" : "Sales",
+        keywords: ["venta", "ventas", "sales", "comprar", "buy", "purchase", "precio", "precios", "price", "pricing", "cotizacion", "quote", "estimate", "presupuesto", "plan", "planes"]
+      },
+      {
+        id: "information",
+        label: state.language === "es" ? "Informacion" : "Information",
+        keywords: ["informacion", "information", "info", "consulta", "question", "pregunta", "servicios", "services", "producto", "productos", "products", "horario", "hours"]
+      },
       {
         id: "drones",
         label: state.language === "es" ? "Drones" : "Drones",

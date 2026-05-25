@@ -16,7 +16,9 @@ const config = {
       "phone support",
       "drone support",
       "AI automation",
-      "business IT support"
+      "business IT support",
+      "sales consultation",
+      "product information"
     ]
   },
   security: {
@@ -30,6 +32,8 @@ const config = {
     drones: "",
     ai: "",
     network: "",
+    sales: "",
+    information: "",
     general: ""
   },
   ...(window.EZEMTECH_VIRTUAL_TECH_CONFIG || {})
@@ -83,7 +87,11 @@ const content = {
       ai:
         "Define el objetivo, los datos disponibles, el idioma, el canal de uso y si necesitas chatbot, automatizacion, prompts o integracion con sistemas.",
       network:
-        "Reinicia modem/router, confirma si otros equipos tienen internet y verifica si el problema es Wi-Fi, cable, DNS o configuracion del equipo."
+        "Reinicia modem/router, confirma si otros equipos tienen internet y verifica si el problema es Wi-Fi, cable, DNS o configuracion del equipo.",
+      sales:
+        "Para ventas, cotizaciones o precios, EZEMTECH puede revisar tus necesidades y recomendar el servicio o producto adecuado.",
+      information:
+        "Para informacion general, EZEMTECH puede explicar servicios, disponibilidad, soporte remoto/presencial y opciones de reserva."
     },
     services: {
       remote: "Remoto",
@@ -132,7 +140,11 @@ const content = {
       ai:
         "Define the goal, available data, language, usage channel, and whether you need a chatbot, automation, prompts, or system integration.",
       network:
-        "Restart the modem/router, confirm whether other devices are online, and check if the issue is Wi-Fi, cable, DNS, or device configuration."
+        "Restart the modem/router, confirm whether other devices are online, and check if the issue is Wi-Fi, cable, DNS, or device configuration.",
+      sales:
+        "For sales, quotes, or pricing, EZEMTECH can review your needs and recommend the right service or product.",
+      information:
+        "For general information, EZEMTECH can explain services, availability, remote/on-site support, and booking options."
     },
     services: {
       remote: "Remote",
@@ -355,6 +367,8 @@ function inferDeviceFromMessage(message) {
   const text = normalize(message);
 
   if (/(drone|dron|dji|helice|gimbal|control remoto|calibracion)/.test(text)) return "drones";
+  if (/(venta|ventas|sales|comprar|buy|purchase|precio|precios|price|pricing|cotizacion|quote|estimate|presupuesto|plan|planes)/.test(text)) return "sales";
+  if (/(informacion|information|info|consulta|question|pregunta|servicios|services|producto|productos|products|horario|hours)/.test(text)) return "information";
   if (/(telefono|phone|iphone|android|samsung|pantalla|bateria|sim)/.test(text)) return "phones";
   if (/(ia|ai|chatbot|automatizacion|automation|prompt|openai|gemini|agente)/.test(text)) return "ai";
   if (/(wifi|wi-fi|internet|router|red|network|modem|dns)/.test(text)) return "network";
@@ -532,6 +546,14 @@ function setDevice(device) {
 function classifyTicket(data) {
   const text = `${state.device} ${data.issue || ""}`.toLowerCase();
   const categories = [
+    {
+      id: "sales",
+      keywords: ["venta", "ventas", "sales", "comprar", "buy", "purchase", "precio", "precios", "price", "pricing", "cotizacion", "quote", "estimate", "presupuesto", "plan", "planes"]
+    },
+    {
+      id: "information",
+      keywords: ["informacion", "information", "info", "consulta", "question", "pregunta", "servicios", "services", "producto", "productos", "products", "horario", "hours"]
+    },
     {
       id: "drones",
       keywords: ["drone", "dron", "dji", "calibracion", "calibration", "propeller", "helice", "remote controller", "gimbal"]

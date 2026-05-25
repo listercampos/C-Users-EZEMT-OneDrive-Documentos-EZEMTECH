@@ -17,6 +17,8 @@ window.EZEMTECH_AGENT_CONFIG = {
     drones: "support@ezemtech.com",
     ai: "support@ezemtech.com",
     network: "support@ezemtech.com",
+    sales: "sales@ezemtech.com,info@ezemtech.com",
+    information: "info@ezemtech.com,sales@ezemtech.com",
     general: "support@ezemtech.com"
   }
 };

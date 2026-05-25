@@ -48,6 +48,8 @@ Si necesitas configurar directo en Wix, puedes usar este bloque antes de `widget
       drones: "support@ezemtech.com",
       ai: "support@ezemtech.com",
       network: "support@ezemtech.com",
+      sales: "sales@ezemtech.com,info@ezemtech.com",
+      information: "info@ezemtech.com,sales@ezemtech.com",
       general: "support@ezemtech.com"
     }
   };
@@ -81,6 +83,8 @@ El agente clasifica automaticamente cada ticket en:
 - `drones`: drones, DJI, calibracion, helice, control, camara.
 - `ai`: IA, chatbots, automatizacion, prompts.
 - `network`: internet, Wi-Fi, router, red.
+- `sales`: ventas, precios, cotizaciones, compras.
+- `information`: informacion general, preguntas sobre productos o servicios.
 - `general`: cualquier caso que no tenga una coincidencia clara.
 
 Si configuras `technicianEmails`, el boton **Notificar tecnico** abre un email dirigido al tecnico correcto. Si configuras `webhookUrl`, el payload tambien incluye `classification`, `classificationLabel` y `technicianEmail` para que Zapier, Make o n8n envie el correo automaticamente.
