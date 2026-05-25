@@ -24,18 +24,18 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
   window.EZEMTECH_AGENT_CONFIG = {
     businessName: "EZEMTECH",
     bookingUrl: "https://www.ezemtech.com/book-online",
-    contactEmail: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com",
+    contactEmail: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com",
     whatsappNumber: "TU_NUMERO_WHATSAPP_CON_CODIGO_PAIS",
     webhookUrl: "",
     knowledgeBaseUrl: "URL_CSV_PUBLICA_DE_GOOGLE_SHEETS",
     localKnowledgeBaseUrl: "URL_PUBLICA/local-knowledge.csv",
     technicianEmails: {
-      computers: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com",
-      phones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com",
-      drones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com",
-      ai: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com",
-      network: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com",
-      general: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com"
+      computers: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com",
+      phones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com",
+      drones: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com",
+      ai: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com",
+      network: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com",
+      general: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com"
     }
   };
 </script>
