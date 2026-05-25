@@ -26,7 +26,8 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
     bookingUrl: "https://www.ezemtech.com/book-online",
     contactEmail: "TU_EMAIL_AQUI",
     whatsappNumber: "TU_NUMERO_WHATSAPP_CON_CODIGO_PAIS",
-    webhookUrl: ""
+    webhookUrl: "",
+    knowledgeBaseUrl: "URL_CSV_PUBLICA_DE_GOOGLE_SHEETS"
   };
 </script>
 <script src="URL_PUBLICA/widget.js"></script>
@@ -38,6 +39,28 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
 - `whatsappNumber`: numero en formato internacional sin signos. Ejemplo: `15551234567`.
 - `webhookUrl`: URL opcional de Zapier, Make o n8n para crear tickets automaticamente.
 - `bookingUrl`: enlace de reservas de EZEMTECH.
+- `knowledgeBaseUrl`: URL publica CSV de Google Sheets para que el agente cargue respuestas actualizadas.
+
+## Conexion a Google Sheets
+
+Esta es la forma rapida de que el agente "aprenda" sin tocar codigo. Cada vez que editas el Google Sheet, el widget puede leer las nuevas respuestas publicadas.
+
+1. Crea un Google Sheet.
+2. Usa estas columnas: `language`, `keywords`, `response`.
+3. Copia el contenido de `google-knowledge-template.csv` como ejemplo.
+4. En Google Sheets, ve a **File > Share > Publish to web**.
+5. Elige la hoja y publica como **Comma-separated values (.csv)**.
+6. Copia la URL CSV y pegala en `knowledgeBaseUrl`.
+
+Ejemplo de filas:
+
+```csv
+language,keywords,response
+es,"computadora lenta,lenta,windows","Reinicia el equipo y verifica espacio disponible. EZEMTECH puede revisar malware, inicio y disco."
+en,"slow computer,slow,windows","Restart the computer and check available space. EZEMTECH can review malware, startup and disk health."
+```
+
+Importante: no pongas contrasenas, datos privados de clientes ni informacion sensible en esa hoja si la publicas como CSV.
 
 ## Flujo incluido
 
@@ -45,5 +68,6 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
 2. Tipo de problema.
 3. Urgencia.
 4. Soporte remoto, presencial o no seguro.
-5. Datos del cliente.
-6. Resumen listo para enviar o copiar.
+5. Recomendacion automatica desde Google Sheets cuando exista una coincidencia.
+6. Datos del cliente.
+7. Resumen listo para enviar o copiar.

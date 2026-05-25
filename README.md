@@ -15,6 +15,7 @@ generar un resumen listo para el equipo tecnico.
 - Captura de nombre, telefono, email, ubicacion, equipo y descripcion.
 - Recomendacion de soporte remoto o presencial.
 - Resumen listo para email, WhatsApp, booking o webhook.
+- Conexion opcional a Google Sheets como base de conocimiento bilingue.
 
 ## Instalacion
 

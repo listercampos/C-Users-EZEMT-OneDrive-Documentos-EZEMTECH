@@ -5,6 +5,7 @@
     contactEmail: "",
     whatsappNumber: "",
     webhookUrl: "",
+    knowledgeBaseUrl: "",
     ...(window.EZEMTECH_AGENT_CONFIG || {})
   };
 
@@ -12,7 +13,8 @@
     language: "es",
     issue: "",
     urgency: "",
-    serviceType: ""
+    serviceType: "",
+    knowledgeBase: []
   };
 
   const copy = {
@@ -26,6 +28,7 @@
       chooseIssue: "Que problema necesitas resolver?",
       urgency: "Que tan urgente es?",
       serviceType: "Prefieres soporte remoto o presencial?",
+      knowledgeTip: "Recomendacion inicial:",
       formIntro: "Perfecto. Dejame tus datos para preparar el ticket.",
       final:
         "Listo. Este es el resumen para el equipo tecnico. Puedes enviarlo por email, WhatsApp o reservar una cita.",
@@ -47,6 +50,7 @@
       chooseIssue: "What issue do you need help with?",
       urgency: "How urgent is it?",
       serviceType: "Do you prefer remote or on-site support?",
+      knowledgeTip: "Initial recommendation:",
       formIntro: "Great. Please share your details so we can prepare the ticket.",
       final:
         "Done. Here is the summary for the technical team. You can send it by email, WhatsApp, or book an appointment.",
@@ -74,6 +78,45 @@
     es: ["Remoto", "Presencial", "No estoy seguro"],
     en: ["Remote", "On-site", "Not sure"]
   };
+
+  const defaultKnowledgeBase = [
+    {
+      language: "es",
+      keywords: "computadora lenta,lenta,slow,performance,windows",
+      response:
+        "Reinicia el equipo, cierra programas innecesarios y confirma si el disco esta casi lleno. Si el problema sigue, EZEMTECH puede revisar malware, programas de inicio, salud del disco y memoria."
+    },
+    {
+      language: "en",
+      keywords: "slow computer,slow,performance,windows",
+      response:
+        "Restart the computer, close unnecessary apps, and check whether the drive is almost full. If it continues, EZEMTECH can review malware, startup apps, drive health, and memory."
+    },
+    {
+      language: "es",
+      keywords: "virus,malware,popups,seguridad",
+      response:
+        "No ingreses contrasenas ni datos bancarios hasta que el equipo sea revisado. EZEMTECH puede hacer limpieza de malware, revisar extensiones del navegador y reforzar la seguridad."
+    },
+    {
+      language: "en",
+      keywords: "virus,malware,popups,security",
+      response:
+        "Do not enter passwords or banking details until the device is checked. EZEMTECH can clean malware, review browser extensions, and improve security."
+    },
+    {
+      language: "es",
+      keywords: "internet,wifi,wi-fi,red,router",
+      response:
+        "Prueba reiniciar modem/router y verifica si otros equipos tienen internet. Si solo falla un equipo, puede ser configuracion de red, drivers o DNS."
+    },
+    {
+      language: "en",
+      keywords: "internet,wifi,wi-fi,network,router",
+      response:
+        "Restart the modem/router and check whether other devices are online. If only one device fails, it may be network settings, drivers, or DNS."
+    }
+  ];
 
   const root = document.createElement("div");
   root.className = "ez-agent";
@@ -149,6 +192,93 @@
     options.appendChild(wrap);
   }
 
+  async function loadKnowledgeBase() {
+    state.knowledgeBase = defaultKnowledgeBase;
+
+    if (!config.knowledgeBaseUrl) return;
+
+    try {
+      const response = await fetch(config.knowledgeBaseUrl);
+      if (!response.ok) throw new Error(`Knowledge base status ${response.status}`);
+      const csv = await response.text();
+      const rows = parseCsv(csv);
+      const entries = rows
+        .map((row) => ({
+          language: clean(row.language || row.idioma || row.lang),
+          keywords: clean(row.keywords || row.palabras_clave || row.palabras || row.issue),
+          response: clean(row.response || row.respuesta || row.answer)
+        }))
+        .filter((row) => row.language && row.keywords && row.response);
+
+      if (entries.length) state.knowledgeBase = entries;
+    } catch (error) {
+      console.warn("EZEMTECH knowledge base failed", error);
+    }
+  }
+
+  function parseCsv(csv) {
+    const rows = [];
+    let row = [];
+    let value = "";
+    let quoted = false;
+
+    for (let index = 0; index < csv.length; index += 1) {
+      const char = csv[index];
+      const next = csv[index + 1];
+
+      if (char === '"' && quoted && next === '"') {
+        value += '"';
+        index += 1;
+      } else if (char === '"') {
+        quoted = !quoted;
+      } else if (char === "," && !quoted) {
+        row.push(value);
+        value = "";
+      } else if ((char === "\n" || char === "\r") && !quoted) {
+        if (char === "\r" && next === "\n") index += 1;
+        row.push(value);
+        rows.push(row);
+        row = [];
+        value = "";
+      } else {
+        value += char;
+      }
+    }
+
+    if (value || row.length) {
+      row.push(value);
+      rows.push(row);
+    }
+
+    const headers = (rows.shift() || []).map((header) => clean(header).toLowerCase());
+    return rows.map((cells) =>
+      headers.reduce((record, header, index) => {
+        record[header] = cells[index] || "";
+        return record;
+      }, {})
+    );
+  }
+
+  function clean(value) {
+    return String(value || "").trim();
+  }
+
+  function findKnowledgeTip() {
+    const issue = state.issue.toLowerCase();
+    const service = state.serviceType.toLowerCase();
+    const entries = state.knowledgeBase.filter((entry) => entry.language === state.language);
+
+    return entries.find((entry) => {
+      const keywords = entry.keywords
+        .toLowerCase()
+        .split(",")
+        .map((keyword) => keyword.trim())
+        .filter(Boolean);
+
+      return keywords.some((keyword) => issue.includes(keyword) || service.includes(keyword));
+    });
+  }
+
   function start() {
     messages.innerHTML = "";
     state.language = "es";
@@ -194,8 +324,16 @@
     renderButtonGroup(serviceLabels[state.language], (serviceType) => {
       state.serviceType = serviceType;
       user(serviceType);
+      showKnowledgeTip();
       showForm();
     });
+  }
+
+  function showKnowledgeTip() {
+    const tip = findKnowledgeTip();
+    if (!tip) return;
+
+    bot(`${t("knowledgeTip")} ${tip.response}`);
   }
 
   function showForm() {
@@ -242,7 +380,15 @@
     summaryBubble.textContent = summary;
     messages.appendChild(summaryBubble);
     messages.scrollTop = messages.scrollHeight;
-    await postWebhook({ ...state, ...data, summary, source: window.location.href });
+    await postWebhook({
+      language: state.language,
+      issue: state.issue,
+      urgency: state.urgency,
+      serviceType: state.serviceType,
+      ...data,
+      summary,
+      source: window.location.href
+    });
     renderActions(summary);
   }
 
@@ -338,5 +484,6 @@ ${labels.description}: ${data.description}`;
     if (!isOpen && messages.children.length === 0) start();
   });
 
+  loadKnowledgeBase();
   close.addEventListener("click", () => panel.setAttribute("data-open", "false"));
 })();
