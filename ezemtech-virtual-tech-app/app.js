@@ -1,6 +1,7 @@
 const config = {
   bookingUrl: "https://www.ezemtech.com/book-online",
   websiteUrl: "https://www.ezemtech.com/",
+  whatsappNumber: "",
   webhookUrl: "",
   technicianEmails: {
     computers: "",
@@ -94,6 +95,7 @@ const form = document.querySelector("#diagnosticForm");
 const installButton = document.querySelector(".install-button");
 const copyTicketButton = document.querySelector("#copyTicket");
 const notifyButton = document.createElement("button");
+const whatsappButton = document.createElement("button");
 let installPrompt = null;
 
 function t(key) {
@@ -216,6 +218,12 @@ function notifyTechnician() {
   addMessage(t("notified"));
 }
 
+function sendWhatsapp() {
+  if (!state.lastTicket || !config.whatsappNumber) return;
+
+  window.open(`https://wa.me/${config.whatsappNumber}?text=${encodeURIComponent(state.lastTicket)}`, "_blank", "noopener");
+}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
@@ -257,6 +265,12 @@ notifyButton.type = "button";
 notifyButton.textContent = content.es.notifyTech;
 notifyButton.addEventListener("click", notifyTechnician);
 document.querySelector(".actions").appendChild(notifyButton);
+
+whatsappButton.className = "action-button";
+whatsappButton.type = "button";
+whatsappButton.textContent = "WhatsApp";
+whatsappButton.addEventListener("click", sendWhatsapp);
+document.querySelector(".actions").appendChild(whatsappButton);
 
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();

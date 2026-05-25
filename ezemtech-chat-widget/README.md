@@ -25,7 +25,7 @@ Abre `index.html` en el navegador y usa el boton de chat en la esquina inferior 
     businessName: "EZEMTECH",
     bookingUrl: "https://www.ezemtech.com/book-online",
     contactEmail: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
-    whatsappNumber: "TU_NUMERO_WHATSAPP_CON_CODIGO_PAIS",
+    whatsappNumber: "16468422766",
     webhookUrl: "",
     knowledgeBaseUrl: "URL_CSV_PUBLICA_DE_GOOGLE_SHEETS",
     localKnowledgeBaseUrl: "URL_PUBLICA/local-knowledge.csv",

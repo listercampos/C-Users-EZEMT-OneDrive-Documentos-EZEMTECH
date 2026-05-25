@@ -32,6 +32,7 @@ Configura los correos en `index.html`:
   window.EZEMTECH_VIRTUAL_TECH_CONFIG = {
     bookingUrl: "https://www.ezemtech.com/book-online",
     websiteUrl: "https://www.ezemtech.com/",
+    whatsappNumber: "16468422766",
     webhookUrl: "",
     technicianEmails: {
       computers: "ezemtech@gmail.com,listercampos@gmail.com,info@ezemtech.com,support@ezemtech.com,sales@ezemtech.com",
