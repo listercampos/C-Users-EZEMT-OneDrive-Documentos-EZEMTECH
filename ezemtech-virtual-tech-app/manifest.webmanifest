@@ -1,0 +1,17 @@
+{
+  "name": "EZEMTECH Virtual Tech",
+  "short_name": "EZEMTECH Tech",
+  "description": "Tecnico virtual para computadoras, drones, telefonos e IA.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#0b63ce",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

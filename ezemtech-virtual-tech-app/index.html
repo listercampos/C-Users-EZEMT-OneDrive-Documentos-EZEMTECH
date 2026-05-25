@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b63ce" />
+    <title>EZEMTECH Virtual Tech</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">EZEMTECH</p>
+          <h1>Tecnico Virtual</h1>
+          <p class="hero-copy">
+            Diagnostico rapido para computadoras, drones, telefonos e IA. Disponible en
+            espanol e ingles, conectado a EZEMTECH.com para reservas y soporte.
+          </p>
+        </div>
+        <div class="status-card">
+          <span class="status-dot"></span>
+          <strong>Online</strong>
+          <small>Soporte remoto y presencial</small>
+        </div>
+      </section>
+
+      <section class="toolbar" aria-label="Controles">
+        <div class="segmented" role="group" aria-label="Idioma">
+          <button class="segment active" type="button" data-language="es">ES</button>
+          <button class="segment" type="button" data-language="en">EN</button>
+        </div>
+        <button class="install-button" type="button" hidden>Instalar app</button>
+      </section>
+
+      <section class="service-grid" aria-label="Categorias de soporte">
+        <button class="service-card active" type="button" data-device="computers">
+          <span>PC</span>
+          <strong>Computadoras</strong>
+          <small>Windows, Mac, internet, virus</small>
+        </button>
+        <button class="service-card" type="button" data-device="phones">
+          <span>PH</span>
+          <strong>Telefonos</strong>
+          <small>iPhone, Android, apps, datos</small>
+        </button>
+        <button class="service-card" type="button" data-device="drones">
+          <span>DR</span>
+          <strong>Drones</strong>
+          <small>Conexion, camara, calibracion</small>
+        </button>
+        <button class="service-card" type="button" data-device="ai">
+          <span>AI</span>
+          <strong>IA</strong>
+          <small>Chatbots, automatizacion, prompts</small>
+        </button>
+      </section>
+
+      <section class="diagnostic-panel">
+        <div class="conversation" id="conversation" aria-live="polite"></div>
+
+        <form class="diagnostic-form" id="diagnosticForm">
+          <label>
+            <span id="issueLabel">Describe el problema</span>
+            <textarea name="issue" rows="4" required placeholder="Ejemplo: Mi laptop esta lenta y se apaga sola."></textarea>
+          </label>
+          <div class="form-row">
+            <label>
+              <span id="urgencyLabel">Urgencia</span>
+              <select name="urgency">
+                <option value="today">Hoy</option>
+                <option value="week">Esta semana</option>
+                <option value="general">Consulta general</option>
+              </select>
+            </label>
+            <label>
+              <span id="serviceLabel">Servicio</span>
+              <select name="service">
+                <option value="remote">Remoto</option>
+                <option value="onsite">Presencial</option>
+                <option value="not-sure">No estoy seguro</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              <span>Nombre</span>
+              <input name="name" autocomplete="name" />
+            </label>
+            <label>
+              <span>Telefono / Email</span>
+              <input name="contact" autocomplete="email" />
+            </label>
+          </div>
+          <button class="primary-button" type="submit">Diagnosticar</button>
+        </form>
+      </section>
+
+      <section class="actions">
+        <a class="action-button" href="https://www.ezemtech.com/book-online" target="_blank" rel="noopener">Reservar cita</a>
+        <a class="action-button" href="https://www.ezemtech.com/" target="_blank" rel="noopener">EZEMTECH.com</a>
+        <button class="action-button" type="button" id="copyTicket">Copiar ticket</button>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

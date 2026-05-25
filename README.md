@@ -7,6 +7,7 @@ generar un resumen listo para el equipo tecnico.
 ## Proyecto incluido
 
 - `ezemtech-chat-widget/`: widget de chat para insertar en EZEMTECH.com.
+- `ezemtech-virtual-tech-app/`: app instalable tipo PWA conectada a EZEMTECH.com.
 
 ## Funciones
 
@@ -16,6 +17,7 @@ generar un resumen listo para el equipo tecnico.
 - Recomendacion de soporte remoto o presencial.
 - Resumen listo para email, WhatsApp, booking o webhook.
 - Conexion opcional a Google Sheets como base de conocimiento bilingue.
+- App instalable para diagnostico de computadoras, drones, telefonos e IA.
 
 ## Instalacion
 
